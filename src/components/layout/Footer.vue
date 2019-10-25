@@ -6,27 +6,27 @@
                 <el-row :gutter="20" style="margin-right: 70px;">
                     <el-col :span="6">
                         <div class="company">KETI</div>
-                        <div class="company">Sejong Univ.</div>
+                        <div class="company">Daumsoft</div>
                         <div class="company">TTA</div>
                         <div class="company">N2M</div>
                     </el-col>
                     <el-col :span="6">
-                        <div class="company">KETI</div>
                         <div class="company">Sejong Univ.</div>
-                        <div class="company">TTA</div>
+                        <div class="company">Anyang Univ.</div>
+                        <div class="company">Innogrid</div>
+                        <div class="company">나무기술</div>
+                    </el-col>
+                    <el-col :span="6">
+                        <div class="company">Pusan Univ.</div>
+                        <div class="company">Bitua Systems</div>
+                        <div class="company">Dtonic</div>
                         <div class="company">N2M</div>
                     </el-col>
                     <el-col :span="6">
-                        <div class="company">KETI</div>
-                        <div class="company">Sejong Univ.</div>
-                        <div class="company">TTA</div>
-                        <div class="company">N2M</div>
-                    </el-col>
-                    <el-col :span="6">
-                        <div class="company">KETI</div>
-                        <div class="company">Sejong Univ.</div>
-                        <div class="company">TTA</div>
-                        <div class="company">N2M</div>
+                        <div class="company">KAIST</div>
+                        <div class="company">LGU+</div>
+                        <div class="company">KAIST</div>
+                        <div class="company">JC-square</div>
                     </el-col>
                 </el-row>
             </div>
