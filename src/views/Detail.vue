@@ -70,13 +70,9 @@
                     </div>
 
                 </el-tab-pane>
-                <el-tab-pane label="Graph" style="text-align:center">
-                    <!-- <svg width="500" height="270">
-                        <g style="transform: translate(0, 10px)">
-                        <path :d="line" />
-                        </g>
-                    </svg> -->
-                    <Graph/>
+                <el-tab-pane label="Test" style="text-align:center; height:786px">
+
+                    <Test/>
                 </el-tab-pane>
                 <el-tab-pane label="LOD 발행">
                     <div style="text-align:center">
@@ -91,7 +87,8 @@
 
 <script>
 import * as d3 from 'd3';
-import Graph from './Graph';
+// import Graph from './Graph';
+import Test from './Test2';
 
 // var svg = d3.select("#svg-body").append("svg")
 // 				.attr("width", 800)
@@ -242,7 +239,8 @@ export default {
       };
   },
   components: {
-    Graph
+    // Graph,
+    Test
   },
   mounted() {
 
