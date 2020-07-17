@@ -1,10 +1,8 @@
 <template>
 
+    <svg width="100%" height="100%">
 
-            <svg width="100%" height="100%">
-
-            </svg>
-
+    </svg>
 
 </template>
 
@@ -16,37 +14,38 @@ export default {
     data() {
         return {
             svg: null,
+            zoom: null,
             width: 2048,
             height: 768,
             graphdata: {
                 "nodes":  [
-                    { "name": "firmware" },
-                    { "name": "loader"},
-                    { "name": "kernel" },
-                    { "name": "systemd" },
-                    { "name": "mount"},
-                    { "name": "init" },
-                    { "name": "system"},
-                    { "name": "system-getty" },
-                    { "name": "systemd-initctl" },
-                    { "name": "tmp" },
-                    { "name": "sys-devices" },
-                    { "name": "boot" }
+                    { "name": "야탑주차장",              "group":  1, "class": "system" },
+                    { "name": "잔여주차공간",            "group":  1, "class": "system" },
+                    { "name": "kernel",                 "group":  1, "class": "system" },
+                    { "name": "systemd",                "group":  1, "class": "mount" },
+                    { "name": "-.mount",                "group":  1, "class": "mount" },
+                    { "name": "init.scope",             "group":  1, "class": "init" },
+                    { "name": "system.slice",           "group":  1, "class": "init" },
+                    { "name": "system-getty.slice",     "group":  1, "class": "init" },
+                    { "name": "systemd-initctl.socker", "group":  1, "class": "init" },
+                    { "name": "tmp.mount",              "group":  1, "class": "init" },
+                    { "name": "sys-devices",            "group":  2, "class": "init" },
+                    { "name": "boot.mount",             "group":  2, "class": "init" }
                 ],
                 "linkes":  [
-                    { "source":  1,  "target":  0},
-                    { "source":  2,  "target":  1},
-                    { "source":  3,  "target":  2 },
-                    { "source":  4,  "target":  3},
-                    { "source":  5,  "target":  3},
-                    { "source":  6,  "target":  3 },
-                    { "source":  7,  "target":  3 },
-                    { "source":  8,  "target":  3 },
-                    { "source":  9,  "target":  3 },
-                    { "source": 11,  "target": 10 },
-                    { "source": 11,  "target":  3 },
-                    { "source": 11,  "target":  2 },
-                    { "source": 11,  "target":  3 }
+                    { "source":  1,  "target":  0,  "value":  1, "type": "depends" },
+                    { "source":  2,  "target":  1,  "value":  8, "type": "depends" },
+                    { "source":  3,  "target":  2,  "value":  6, "type": "depends" },
+                    { "source":  4,  "target":  3,  "value":  1, "type": "needs" },
+                    { "source":  5,  "target":  3,  "value":  1, "type": "needs" },
+                    { "source":  6,  "target":  3,  "value":  1, "type": "needs" },
+                    { "source":  7,  "target":  3,  "value":  1, "type": "needs" },
+                    { "source":  8,  "target":  3,  "value":  2, "type": "needs" },
+                    { "source":  9,  "target":  3,  "value":  1, "type": "needs" },
+                    { "source": 11,  "target": 10,  "value":  1, "type": "depends" },
+                    { "source": 11,  "target":  3,  "value":  3, "type": "depends" },
+                    { "source": 11,  "target":  2,  "value":  3, "type": "depends" },
+                    { "source": 11,  "target":  3,  "value":  5, "type": "needs" }
                 ]
             },
 
@@ -91,6 +90,12 @@ export default {
         this.selections.svg = d3.select("svg")
         this.selections.graph = this.selections.svg.append("g")
 
+        this.zoom = d3.zoom()
+            .scaleExtent([1 / 4, 4])
+            .on('zoom', this.zoomed)
+
+        this.selections.svg.call(this.zoom)
+
         this.simulation = d3.forceSimulation()
             .force("link", d3.forceLink())
             .force("charge", d3.forceManyBody())
@@ -117,6 +122,7 @@ export default {
             const graph = this.selections.graph
             graph.selectAll("path").attr("d", link)
             graph.selectAll("circle").attr("transform", transform)
+            // graph.selectAll("rect").attr("transform", transform)
             graph.selectAll("text").attr("transform", transform)
         },
         updateForces() {
@@ -153,17 +159,46 @@ export default {
             graph.selectAll("path")
                 .data(simulation.force("link").links())
                 .enter().append("path")
+                .attr("class", d=> "link " + d.type)
                 .attr("stroke", "#005900")
                 .exit().remove()
+            
+            // if(this.node.class == "system") {
 
+                // graph.selectAll("circle")
+                // .data(simulation.nodes())
+                // .enter().append("circle")
+                // .attr("r", 25)
+                // .attr("class", d => d.class)
+                // .attr("fill", "#cce5ff")
+                // .attr("stroke", "#003366")
+                // .exit().remove()
+
+            // } 
+                
             graph.selectAll("circle")
                 .data(simulation.nodes())
                 .enter().append("circle")
-                .attr("r", 30)
+                .attr("r", 25)
                 .attr("class", d => d.class)
-                .attr("fill", "#cce5ff")
-                .attr("stroke", "#003366")
+                .attr("fill", "#ffe5e5")
+                .attr("stroke", "#660000")
                 .exit().remove()
+
+            
+
+
+
+            // graph.selectAll("rect")
+            //     .data(simulation.nodes())
+            //     .enter().append("rect")
+            //     .attr("x", -70)
+            //     .attr("y", 40)
+            //     .attr("width", 100)
+            //     .attr("height", 30)
+            //     .attr("fill", "#cce5ff")
+            //     .attr("stroke", "#003366")
+            //     .exit().remove()
 
             graph.selectAll("text")
                 .data(simulation.nodes())
@@ -175,13 +210,42 @@ export default {
                 .attr("text-shadow", "0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff")
                 .attr("text-anchor", "middle")
                 .text(d => d.name)
+
+            // graph.selectAll("text")
+            //     .data(simulation.node2())
+            //     .enter().append("text")
+            //     .attr("x", 0)
+            //     .attr("y", ".31em")
+            //     .attr("font", "10px sans-serif")
+            //     .attr("pointer-events", "none")
+            //     .attr("text-shadow", "0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff")
+            //     .attr("text-anchor", "middle")
+            //     .text(d => d.name)
             
             simulation.alpha(1).restart();
         },
+        zoomed() {
+            const transform = d3.event.transform;
+            const translate = transform.x % (this.gridSize * transform.k) + ',' +
+                transform.y % (this.gridSize * transform.k) 
+            this.selections.grid.attr('transform', 'translate(' +
+                translate + ') scale(' + transform.k + ')');
+            this.selections.graph.attr('transform', transform)
+
+            const graphBox = this.selections.graph.node().getBBox()
+            const margin = 200
+            const worldTopLeft = [graphBox.x - margin, graphBox.y - margin]
+            const worldBottomRight = [
+                graphBox.x + graphBox.width + margin,
+                graphBox.y + graphBox.height + margin
+            ]
+            this.zoom.translateExtent([worldTopLeft, worldBottomRight])
+        }
 
     },
 
     computed: {
+        // node2() {return this.graphdata.node2},
         nodes() { return this.graphdata.nodes; },
         links() { return this.graphdata.linkes; }
     }
@@ -190,5 +254,42 @@ export default {
 </script>
 
 <style scoped>
+
+  path.link {
+    fill: none;
+    stroke: #666;
+    stroke-width: 1.5px;
+  }
+  path.link.depends {
+    stroke: #005900;
+    stroke-dasharray: 5, 2;
+  }
+  path.link.needs {
+    stroke: #7f3f00;
+  }
+
+  circle {
+    fill: #ffff99;
+    stroke: #191900;
+    stroke-width: 1.5px;
+  }
+  circle.system {
+    fill: #cce5ff;
+    stroke: #003366;
+  }
+  circle.mount {
+    fill: #ffe5e5;
+    stroke: #660000;
+  }
+  circle.init {
+    fill: #b2e8b2;
+    stroke: #001900;
+  }
+
+  text {
+    font: 10px sans-serif;
+    pointer-events: none;
+    text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  }
 
 </style>

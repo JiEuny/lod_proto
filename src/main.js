@@ -7,6 +7,7 @@ import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import * as d3 from 'd3'
+import { store } from './components/store.js';
 
 Vue.config.productionTip = false
 Vue.use(ElementUI);
@@ -16,4 +17,5 @@ Vue.use(d3)
 new Vue({
   router,
   render: h => h(App),
+  store: store,
 }).$mount('#app')
