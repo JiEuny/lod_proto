@@ -1,7 +1,8 @@
 <template>
   <div>
-    <h2 style=" margin-left: 30px; margin-top: 20px  ">검색어: {{$store.state.keyword}}</h2>
-
+    <h2 style=" margin-left: 30px; margin-top: 20px  ">Keyword: {{$store.state.keyword}}</h2>
+    <!-- <button v-on:click=getKeyword>qweqr</button> -->
+    <!-- {{$keyword}} -->
     <div class="data" style="align:center; margin-right:100px">
       <el-row>
         <el-col :span="4">
@@ -87,23 +88,52 @@
 </template>
 
 <script>
+import axios from 'axios'
 
 export default {
   name: "Select",
   components: {},
   data() {
     return {
-      keyword: this.$store.state.keyword
+      keyword: this.$store.state.keyword,
+      gets: []
     };
+  },
+  mounted() {
+    this.getKeyword();
   },
   methods: {
     // getKeyword() {
-    //   alert(this.keyword);
+    //   const baseURI = "http://localhost:3000";
+    //   this.$http.get(`${baseURI}/graphs`).then((result) => {
+    //     // alert(result.data);
+    //     this.gets = result.data;
+    //     // alert(this.keyword)
+    //   });
+    //   alert(this.gets)
+    // },
+    // getKeyword() {
+    //   // const axios = require('axios');
+    //   axios.get('http://192.168.0.20:3000/graphs')
+    //   .then(res => {
+    //     this.gets = res.data.map(r => r.data)
+    //   })
+    //   alert(this.gets);
     // }
+    getKeyword() {
+      const baseURI = "http://localhost:3000";
+      axios.get(baseURI+'/graphList').then(res => {
+        this.gets = res.data
+        // alert(res.data.graphList);
+        // console.log(this.gets);
+        console.log(this.gets.graphList);
+        axios.get(baseURI+'/graph').then(res2 => {
+          console.log(res2.data);
+        })
+      })
+    }
   },
-  created() {
-
-  }
+  created() {},
 };
 </script>
 
