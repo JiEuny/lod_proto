@@ -25,7 +25,7 @@ export default new Router({
             component: Select
         },
         {
-            path: '/detail',
+            path: '/detail/:graph-name',
             name: 'Detail',
             component: Detail
         }

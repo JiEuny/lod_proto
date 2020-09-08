@@ -21,8 +21,8 @@
             <el-col :span="3" class="park">{{gd.parking}}</el-col>
           </el-row>
           <div class="name">{{gd.parkingLot}}</div>
-          <el-row>
-            <el-col :span="3" class="btn">LOD</el-col>
+          <el-row> <!--gd.parking -> will be graph name -->
+              <router-link :to="`/detail/${gd.parking}`"><el-col :span="3" class="btn">LOD</el-col> </router-link>
             <el-col :span="3" class="btn">View Map</el-col>
           </el-row>
         </el-col>
