@@ -3,83 +3,27 @@
     <h2 style=" margin-left: 30px; margin-top: 20px  ">Keyword: {{$store.state.keyword}}</h2>
     <!-- <button v-on:click=getKeyword>qweqr</button> -->
     <!-- {{$keyword}} -->
-    <div class="data" style="align:center; margin-right:100px">
+    <div class="data" v-for="gd in getGraphList" :key="gd.id">
       <el-row>
         <el-col :span="4">
           <div class="grid-content bg-purple">
             <br />
-            <div class="imgbox">
-              <br />
-              <br />image
-              <br />
-              <br />
-              <br />
+            <div class="imgbox-updated">
+
+                {{gd.imageLink}}-{{gd.id}}
+<!--                <img class="img-responsive" src="park1.jpeg" alt="Image"  width="100" height="100">-->
             </div>
             <br />
           </div>
         </el-col>
         <el-col :span="20">
           <el-row>
-            <el-col :span="3" class="park">실내주차장</el-col>
+            <el-col :span="3" class="park">{{gd.parking}}</el-col>
           </el-row>
-          <div class="name">야탑 제1 환승 주차장</div>
+          <div class="name">{{gd.parkingLot}}</div>
           <el-row>
             <el-col :span="3" class="btn">LOD</el-col>
-            <el-col :span="3" class="btn">지도 보기</el-col>
-          </el-row>
-        </el-col>
-      </el-row>
-    </div>
-    <div class="data" style="align:center; margin-right:100px">
-      <el-row>
-        <el-col :span="4">
-          <div class="grid-content bg-purple">
-            <br />
-            <div class="imgbox">
-              <br />
-              <br />image
-              <br />
-              <br />
-              <br />
-            </div>
-            <br />
-          </div>
-        </el-col>
-        <el-col :span="20">
-          <el-row>
-            <el-col :span="3" class="park">실내주차장</el-col>
-          </el-row>
-          <div class="name">야탑 제2 환승 주차장</div>
-          <el-row>
-            <el-col :span="3" class="btn">LOD</el-col>
-            <el-col :span="3" class="btn">지도 보기</el-col>
-          </el-row>
-        </el-col>
-      </el-row>
-    </div>
-    <div class="data" style="align:center; margin-right:100px">
-      <el-row>
-        <el-col :span="4">
-          <div class="grid-content bg-purple">
-            <br />
-            <div class="imgbox">
-              <br />
-              <br />image
-              <br />
-              <br />
-              <br />
-            </div>
-            <br />
-          </div>
-        </el-col>
-        <el-col :span="20">
-          <el-row>
-            <el-col :span="3" class="park">실내주차장</el-col>
-          </el-row>
-          <div class="name">CGV 야탑 주차장</div>
-          <el-row>
-            <el-col :span="3" class="btn">LOD</el-col>
-            <el-col :span="3" class="btn">지도 보기</el-col>
+            <el-col :span="3" class="btn">View Map</el-col>
           </el-row>
         </el-col>
       </el-row>
@@ -96,7 +40,14 @@ export default {
   data() {
     return {
       keyword: this.$store.state.keyword,
-      gets: []
+        //getGraphList: [] // it will uncommented once getKeyword data prepared
+
+        //Note-> hardcoded array for now, this result will populate from getKeyword method (props name in objects are taken randomly for binding testing)
+        getGraphList: [
+            {id:1, parking: 'Indoor parking lot', parkingLot:'Yatap first transfer parking lot', lan:'forMap', lat:'forMap', imageLink:'image-park'},
+            {id:2, parking: 'Indoor parking lot', parkingLot:'Yatap second transfer parking lot', lan:'forMap', lat:'forMap', imageLink:'image-park'},
+            {id:3, parking: 'Indoor parking lot', parkingLot:'CGV Yatap parking lot', lan:'forMap', lat:'forMap', imageLink:'image-park'}
+        ]
     };
   },
   mounted() {
@@ -120,13 +71,13 @@ export default {
     //   })
     //   alert(this.gets);
     // }
+
     getKeyword() {
       const baseURI = "http://localhost:3000";
       axios.get(baseURI+'/graphList').then(res => {
-        this.gets = res.data
+        this.getGraphList = res.data;
         // alert(res.data.graphList);
-        // console.log(this.gets);
-        console.log(this.gets.graphList);
+        console.log(this.getGraphList.graphList);
         axios.get(baseURI+'/graph').then(res2 => {
           console.log(res2.data);
         })
@@ -170,6 +121,16 @@ h2 {
   margin-left: 100px;
   margin-top: 30px;
   box-shadow: 2px 2px 2px 1px rgba(128, 128, 128, 0.1);
+}
+
+.imgbox-updated {
+    height: 115px;
+    width: 210px;
+    padding: 45px;
+    border: solid 1px;
+    margin: 0px 35px 0px 35px;
+    background-color: #b5bec3;
+    box-shadow: 2px 2px 2px 1px rgba(128, 128, 128, 0.1);
 }
 
 .imgbox {
