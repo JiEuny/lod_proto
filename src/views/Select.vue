@@ -140,10 +140,6 @@ h2 {
   box-shadow: 2px 2px 2px 1px rgba(128, 128, 128, 0.1);
 }
 
-.el-row {
-  margin-bottom: 20px;
-}
-
 .bg-purple {
   margin-right: 0px;
   border-right: solid 1px #b5bec3;
