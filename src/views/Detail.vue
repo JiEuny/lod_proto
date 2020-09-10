@@ -1,24 +1,23 @@
 <template>
     <div>
         <div class="data" style="align:center; margin-right:100px">
-            <el-row >
+            <el-row>
                 <el-col :span="4">
                     <div class="grid-content bg-purple">
-                        <br/>
-                        <div class="imgbox">
-                            <br/><br/>image<br/><br/><br/>
+                        <br />
+                        <div class="imgbox-updated">
+                            <img class="img" v-bind:src="graphDetail.imageLink" v-bind:alt="'Park-' + graphDetail.id">
                         </div>
-                        <br/>
+                        <br />
                     </div>
                 </el-col>
                 <el-col :span="20">
                     <el-row>
-                        <el-col :span="3" class="park">실내주차장</el-col>
+                        <el-col :span="5" class="park">{{graphDetail.parking}}</el-col>
                     </el-row>
-                    <div class="name">야탑 제1 환승 주차장
-                    </div>
+                    <div class="name">{{graphDetail.parkingLot}}</div>
                     <el-row>
-                    <div class="name" style="color:blue; text-decoration: underline;">http://203.253.128.164:7579/ParkingSpot/Yatap/Public</div>
+                        <div class="name" style="color:blue; text-decoration: underline;">http://203.253.128.164:7579/ParkingSpot/Yatap/Public</div>
                     </el-row>
                 </el-col>
             </el-row>
@@ -31,39 +30,39 @@
                         <b-table-simple hover small caption-top responsive bordered >
                             <b-tbody >
                                 <b-tr>
-                                    <b-th rowspan="2" colspan="1" class="text-center" variant="secondary" >위치정보</b-th>
-                                    <b-th class="text-center" colspan="1" variant="secondary" >주소</b-th>
-                                    <b-td colspan="3">KR, 경기도, 성남시</b-td>
+                                    <b-th rowspan="2" colspan="1" class="text-center" variant="secondary" >Location information</b-th>
+                                    <b-th class="text-center" colspan="1" variant="secondary" >address</b-th>
+                                    <b-td colspan="3">KR, Gyeonggi-do, Seongnam-si</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th class="text-center" variant="secondary" >위경도</b-th>
+                                    <b-th class="text-center" variant="secondary" >Latitude and longitude</b-th>
                                     <b-td>Lat : 00.00, Lon : 00.00</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th rowspan="2" class="text-center" variant="secondary" >운영시간</b-th>
-                                    <b-th class="text-center" variant="secondary" >오픈</b-th>
+                                    <b-th rowspan="2" class="text-center" variant="secondary" >operating time</b-th>
+                                    <b-th class="text-center" variant="secondary" >open</b-th>
                                     <b-td>월-금 AM 10:00</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th class="text-center" variant="secondary" >마감</b-th>
+                                    <b-th class="text-center" variant="secondary" >deadline</b-th>
                                     <b-td>월-금 PM 10:00</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th rowspan="4" class="text-center" variant="secondary" >세부정보</b-th>
-                                    <b-th class="text-center" variant="secondary" >연락처</b-th>
+                                    <b-th rowspan="4" class="text-center" variant="secondary" >Details</b-th>
+                                    <b-th class="text-center" variant="secondary" >Contact</b-th>
                                     <b-td>031-000-0000</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th class="text-center" variant="secondary" >수정된 날짜</b-th>
+                                    <b-th class="text-center" variant="secondary" >Modified date</b-th>
                                     <b-td>2018-12-11</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th class="text-center" variant="secondary" >총 주차면</b-th>
+                                    <b-th class="text-center" variant="secondary" >Total parking space</b-th>
                                     <b-td>110</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th class="text-center" variant="secondary" >주차장 유형</b-th>
-                                    <b-td>실내 주차장</b-td>
+                                    <b-th class="text-center" variant="secondary" >Parking type</b-th>
+                                    <b-td>Indoor parking lot</b-td>
                                 </b-tr>
                             </b-tbody>
                         </b-table-simple>
@@ -74,7 +73,7 @@
 
                     <Test/>
                 </el-tab-pane>
-                <el-tab-pane label="LOD 발행">
+                <el-tab-pane label="LOD publish">
                     <div style="text-align:center">
                         <img style="margin:80px 80px 100px 80px" src="./../assets/fileimg.png"/>
                     </div>
@@ -235,7 +234,7 @@ export default {
           triples: [
             {subject:"ThaiLand", predicate:"hasFood", object:"TomYumKung"}
             ],
-          graphName: this.$route.params.graphName
+          graphDetail :  this.$route.params.graph_obj
       };
   },
   components: {
@@ -318,7 +317,7 @@ marker {
 }
 
 .path {
-    fill:nono;
+    fill:none;
     stroke: #76bf8a;
     stroke-width: 3px;
 }
@@ -359,6 +358,22 @@ marker {
     background-color: orange;
     margin: 20px 0px 0px 20px;
     text-align: center;
+}
+
+.imgbox-updated {
+    height: 115px;
+    width: 210px;
+    border: solid 1px;
+    margin: 0px 35px 0px 35px;
+    background-color: #b5bec3;
+    box-shadow: 2px 2px 2px 1px rgba(128, 128, 128, 0.1);
+}
+
+.img {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    height: 120px;
+    width: 215px;
 }
 
 </style>

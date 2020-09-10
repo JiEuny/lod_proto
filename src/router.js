@@ -25,9 +25,10 @@ export default new Router({
             component: Select
         },
         {
-            path: '/detail/:graph-name',
+            path: '/detail',
             name: 'Detail',
-            component: Detail
-        }
+            component: Detail,
+            props: true
+        },
     ]
 })

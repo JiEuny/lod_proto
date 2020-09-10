@@ -9,21 +9,20 @@
           <div class="grid-content bg-purple">
             <br />
             <div class="imgbox-updated">
-
-                {{gd.imageLink}}-{{gd.id}}
-<!--                <img class="img-responsive" src="park1.jpeg" alt="Image"  width="100" height="100">-->
+                <img class="img" v-bind:src="gd.imageLink" v-bind:alt="'Park-' + gd.id">
             </div>
             <br />
           </div>
         </el-col>
         <el-col :span="20">
           <el-row>
-            <el-col :span="3" class="park">{{gd.parking}}</el-col>
+            <el-col :span="4" class="park">{{gd.parking}}</el-col>
           </el-row>
           <div class="name">{{gd.parkingLot}}</div>
           <el-row> <!--gd.parking -> will be graph name -->
-              <router-link :to="`/detail/${gd.parking}`"><el-col :span="3" class="btn">LOD</el-col> </router-link>
-            <el-col :span="3" class="btn">View Map</el-col>
+<!--              <router-link :to="`/detail/${gd.parking}`"><el-col :span="2" class="btn">LOD</el-col> </router-link>-->
+              <router-link :to="{ name: 'Detail', params: { graph_obj: gd }}"><el-col :span="2" class="btn">LOD</el-col> </router-link>
+            <el-col :span="2" class="btn">View Map</el-col>
           </el-row>
         </el-col>
       </el-row>
@@ -41,17 +40,17 @@ export default {
     return {
       keyword: this.$store.state.keyword,
         //getGraphList: [] // it will uncommented once getKeyword data prepared
-
         //Note-> hardcoded array for now, this result will populate from getKeyword method (props name in objects are taken randomly for binding testing)
         getGraphList: [
-            {id:1, parking: 'Indoor parking lot', parkingLot:'Yatap first transfer parking lot', lan:'forMap', lat:'forMap', imageLink:'image-park'},
-            {id:2, parking: 'Indoor parking lot', parkingLot:'Yatap second transfer parking lot', lan:'forMap', lat:'forMap', imageLink:'image-park'},
-            {id:3, parking: 'Indoor parking lot', parkingLot:'CGV Yatap parking lot', lan:'forMap', lat:'forMap', imageLink:'image-park'}
+            {id:1, parkingLot : 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_1', parking:'Yatap first transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/park1.jpeg')},
+            {id:2, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkingspot_23_yt_lot_1', parking:'Yatap second transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/park2.jpg')},
+            {id:3, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_3', parking:'CGV Yatap parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/park3.jpeg')}
         ]
     };
   },
   mounted() {
     this.getKeyword();
+
   },
   methods: {
     // getKeyword() {
@@ -97,7 +96,7 @@ h2 {
 
 .park {
   background-color: orange;
-  margin: 20px 0px 0px 20px;
+  margin: 30px 0px 0px 30px;
   text-align: center;
   box-shadow: 2px 2px 2px 1px rgba(128, 128, 128, 0.1);
 }
@@ -109,7 +108,7 @@ h2 {
 
 .btn {
   border: solid 1px cornflowerblue;
-  margin: 20px 0px 0px 20px;
+  margin: 20px 0px 10px 20px;
   text-align: center;
   color: cornflowerblue;
   box-shadow: 2px 2px 2px 1px rgba(128, 128, 128, 0.1);
@@ -119,18 +118,24 @@ h2 {
   background-color: white;
   /* width: 75%; */
   margin-left: 100px;
-  margin-top: 30px;
+  margin-top: 40px;
   box-shadow: 2px 2px 2px 1px rgba(128, 128, 128, 0.1);
 }
 
 .imgbox-updated {
     height: 115px;
     width: 210px;
-    padding: 45px;
     border: solid 1px;
     margin: 0px 35px 0px 35px;
     background-color: #b5bec3;
     box-shadow: 2px 2px 2px 1px rgba(128, 128, 128, 0.1);
+}
+
+.img {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  height: 120px;
+  width: 215px;
 }
 
 .imgbox {
@@ -148,5 +153,7 @@ h2 {
 
 .grid-content {
   min-height: 36px;
+  padding: 3px
 }
+
 </style>
