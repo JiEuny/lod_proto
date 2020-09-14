@@ -15,9 +15,10 @@
           </div>
         </el-col>
         <el-col :span="20">
-          <el-row>
-            <el-col :span="4" class="park">{{gd.parking}}</el-col>
-          </el-row>
+<!--          <el-row>-->
+<!--            <el-col :span="4" class="park">{{gd.parking}}</el-col>-->
+<!--          </el-row>-->
+          <br/>
           <div class="name">{{gd.parkingLot}}</div>
           <el-row> <!--gd.parking -> will be graph name -->
 <!--              <router-link :to="`/detail/${gd.parking}`"><el-col :span="2" class="btn">LOD</el-col> </router-link>-->
@@ -42,9 +43,9 @@ export default {
         //getGraphList: [] // it will uncommented once getKeyword data prepared
         //Note-> hardcoded array for now, this result will populate from getKeyword method (props name in objects are taken randomly for binding testing)
         getGraphList: [
-            {id:1, parkingLot : 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_1', parking:'Yatap first transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/park1.jpeg')},
-            {id:2, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkingspot_23_yt_lot_1', parking:'Yatap second transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/park2.jpg')},
-            {id:3, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_3', parking:'CGV Yatap parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/park3.jpeg')}
+            {id:1, parkingLot : 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_1', parking:'Yatap first transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/smart_city_ontology.jpg')},
+            {id:2, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkingspot_23_yt_lot_1', parking:'Yatap second transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/smart_city_ontology.jpg')},
+            {id:3, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_3', parking:'CGV Yatap parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/smart_city_ontology.jpg')}
         ]
     };
   },

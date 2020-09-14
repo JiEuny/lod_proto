@@ -12,9 +12,10 @@
                     </div>
                 </el-col>
                 <el-col :span="20">
-                    <el-row>
+     <!--               <el-row>
                         <el-col :span="5" class="park">{{graphDetail.parking}}</el-col>
-                    </el-row>
+                    </el-row>-->
+                    <br/>
                     <div class="name">{{graphDetail.parkingLot}}</div>
                     <el-row>
                         <div class="name" style="color:blue; text-decoration: underline;">http://203.253.128.164:7579/ParkingSpot/Yatap/Public</div>
