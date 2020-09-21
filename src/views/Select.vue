@@ -80,6 +80,7 @@ export default {
     // }
 
     getKeyword() {
+
       const baseURI = "http://localhost:3000";
       const params = {
           graphType: 'ontology,instance',
@@ -87,13 +88,14 @@ export default {
       }
       if(this.$store.state.keyword)
           params.keyword = this.$store.state.keyword;
-
         // const searchParams = new URLSearchParams(params).toString();
-      axios.get(baseURI + `/graphList?graphType=ontology,instance&limit=10&keyword=${this.$store.state.keyword}`, params).then(res => {
+
+        // axios.get(baseURI + `/graphList?graphType=ontology,instance&keyword=${this.$store.state.keyword}&prefixFormat=simple&limit=100`).then(res => {
+        axios.get(baseURI + `/graphs?graphType=ontology,instance&keyword=${this.$store.state.keyword}&prefixFormat=simple&limit=100`).then(res => {
           // this.imageLink = require('@/assets/images/air_quality.jpg');
           // this.getGraphList = res.data;
           const graphListArr = [];
-          const url = `http://www.city-hub.kr/ontologies/2019/1`;
+          const url = `http://www.city-hub.kr/ontologies/2019/1/`;
 
           for (let i = 0; i <  res.data.graphList.length; i++){
               const str =  res.data.graphList[i];
@@ -101,7 +103,7 @@ export default {
                  graphListArr.push(
                      {
                          name : str,
-                         graphName : url + `/parking#`+ str,
+                         graphName : url + str.replace(":", "#"),
                          image : 'parking'
                      }
                  )
@@ -110,7 +112,7 @@ export default {
                      {
                          id: i,
                          name : str,
-                         graphName : url + `/air-quality#`+ str,
+                         graphName : url + str.replace(":", "#"),
                          image : 'air_quality'
                      }
                  )
@@ -119,7 +121,7 @@ export default {
                      {
                          id: i,
                          name : str,
-                         graphName : url + `/weather#` + str,
+                         graphName : url + str.replace(":", "#"),
                          image : 'weather'
                      }
                  )
@@ -128,7 +130,7 @@ export default {
                      {
                          id: i,
                          name : str,
-                         graphName : url + '/' + str,
+                         graphName : url + str,
                          image : 'ontology'
                      }
                  )

@@ -271,7 +271,7 @@ export default {
     },
      getGraphInfoByGraphName() {
          const baseURI = "http://localhost:3000";
-         axios.get(baseURI+`/graphs/${this.graphDetail.name}`).then(gInfoRes => {
+         axios.get(baseURI+`/graphs/${this.graphDetail.name}?prefixFormat=normal&limit=10`).then(gInfoRes => {
              console.log(gInfoRes.data);
              this.graphInfoData = gInfoRes.data;
 
@@ -284,7 +284,7 @@ export default {
                  let rexForDateTime = /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/;
 
                  // just for example now taking 1_yatap_01
-                 let graphNameVal = false
+                 let graphNameVal = false;
                  if (strSubject.search('1_yatap_01') !== -1)
                      graphNameVal = true;
 
