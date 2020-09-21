@@ -9,6 +9,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import * as d3 from 'd3'
 import { store } from './components/store.js';
 import axios from 'axios'
+import VueFilterDateFormat from 'vue-filter-date-format';
 
 Vue.prototype.$http = axios
 
@@ -16,6 +17,7 @@ Vue.config.productionTip = false
 Vue.use(ElementUI);
 Vue.use(BootstrapVue)
 Vue.use(d3)
+Vue.use(VueFilterDateFormat)
 
 new Vue({
   router,

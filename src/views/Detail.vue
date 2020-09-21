@@ -6,7 +6,9 @@
                     <div class="grid-content bg-purple">
                         <br />
                         <div class="imgbox-updated">
-                            <img class="img" v-bind:src="graphDetail.imageLink" v-bind:alt="'Park-' + graphDetail.id">
+<!--                            <img class="img" v-bind:src="graphDetail.imageLink" v-bind:alt="'Park-' + graphDetail.id">-->
+<!--                            <img class="img" v-bind:src="imageLink" v-bind:alt="'Park-' + graphDetail.id">-->
+                            <img class="img"  :src="getImgUrl(graphDetail.image)" v-bind:alt="graphDetail.name">
                         </div>
                         <br />
                     </div>
@@ -16,7 +18,8 @@
                         <el-col :span="5" class="park">{{graphDetail.parking}}</el-col>
                     </el-row>-->
                     <br/>
-                    <div class="name">{{graphDetail.parkingLot}}</div>
+<!--                    <div class="name">{{graphDetail}}</div>-->
+                    <div class="name">{{graphDetail.graphName}}</div>
                     <el-row>
                         <div class="name" style="color:blue; text-decoration: underline;">http://203.253.128.164:7579/ParkingSpot/Yatap/Public</div>
                     </el-row>
@@ -31,39 +34,37 @@
                         <b-table-simple hover small caption-top responsive bordered >
                             <b-tbody >
                                 <b-tr>
-                                    <b-th rowspan="2" colspan="1" class="text-center" variant="secondary" >Location information</b-th>
-                                    <b-th class="text-center" colspan="1" variant="secondary" >address</b-th>
-                                    <b-td colspan="3">KR, Gyeonggi-do, Seongnam-si</b-td>
+                                    <b-th rowspan="2" colspan="1" class="text-center" variant="secondary" >Location Information</b-th>
+                                    <b-th class="text-center tbColSet2" colspan="1" >Address</b-th>
+                                    <b-td colspan="3" variant="variant" class="tbColSet3">{{graphInfoDataForTextTab.address}}</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th class="text-center" variant="secondary" >Latitude and longitude</b-th>
-                                    <b-td>Lat : 00.00, Lon : 00.00</b-td>
+                                    <b-th class="text-center tbColSet2"  >Latitude And Longitude</b-th>
+                                    <b-td class="tbColSet3">Lat: {{graphInfoDataForTextTab.lat}},  Long: {{graphInfoDataForTextTab.long}}</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th rowspan="2" class="text-center" variant="secondary" >operating time</b-th>
-                                    <b-th class="text-center" variant="secondary" >open</b-th>
-                                    <b-td>월-금 AM 10:00</b-td>
+                                    <b-th rowspan="2" class="text-center" variant="secondary" >Operating Time</b-th>
+                                    <b-th class="text-center tbColSet2">Open - End Date</b-th>
+                                    <b-td class="tbColSet3">{{graphInfoDataForTextTab.beginningDate}} - {{graphInfoDataForTextTab.endDate}}</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th class="text-center" variant="secondary" >deadline</b-th>
-                                    <b-td>월-금 PM 10:00</b-td>
+                                    <b-th class="text-center tbColSet2" variant="secondary" >Modified date</b-th>
+                                    <b-td class="tbColSet3">{{new Date(graphInfoDataForTextTab.modifiedDate) | dateFormat('YY/MM/DD hh:mm:ss A') }}</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th rowspan="4" class="text-center" variant="secondary" >Details</b-th>
-                                    <b-th class="text-center" variant="secondary" >Contact</b-th>
-                                    <b-td>031-000-0000</b-td>
+                                    <b-th rowspan="6" class="text-center" variant="secondary" >Details</b-th>
+                                    <b-th class="text-center tbColSet2" >Contact</b-th>
+                                    <b-td  class="tbColSet3">{{graphInfoDataForTextTab.contact}}</b-td>
+                                </b-tr>
+                                <b-th class="text-center tbColSet2" >Email</b-th>
+                                <b-td  class="tbColSet3">{{graphInfoDataForTextTab.email}}</b-td>
+                                <b-tr>
+                                    <b-th class="text-center tbColSet2" variant="secondary" >Total Parking Space</b-th>
+                                    <b-td class="tbColSet3">{{graphInfoDataForTextTab.totalParkingSpace}}</b-td>
                                 </b-tr>
                                 <b-tr>
-                                    <b-th class="text-center" variant="secondary" >Modified date</b-th>
-                                    <b-td>2018-12-11</b-td>
-                                </b-tr>
-                                <b-tr>
-                                    <b-th class="text-center" variant="secondary" >Total parking space</b-th>
-                                    <b-td>110</b-td>
-                                </b-tr>
-                                <b-tr>
-                                    <b-th class="text-center" variant="secondary" >Parking type</b-th>
-                                    <b-td>Indoor parking lot</b-td>
+                                    <b-th class="text-center tbColSet2" variant="secondary" >Available Number Of Spots</b-th>
+                                    <b-td class="tbColSet3">{{graphInfoDataForTextTab.availableNumberOfSpots}}</b-td>
                                 </b-tr>
                             </b-tbody>
                         </b-table-simple>
@@ -87,6 +88,7 @@
 
 <script>
 import * as d3 from 'd3';
+import axios from 'axios'
 // import Graph from './Graph';
 import Test from './Test2';
 
@@ -235,36 +237,16 @@ export default {
           triples: [
             {subject:"ThaiLand", predicate:"hasFood", object:"TomYumKung"}
             ],
-          graphDetail :  this.$route.params.graph_obj
+          graphDetail :  this.$route.params.graph_obj,
+          // imageLink: require('@/assets/images/smart_city_ontology.jpg'),
+          graphInfoData: '',
+          graphInfoDataForTextTab: {address: '', lat:'', long: '', beginningDate:'', endDate:'', contact:'',
+              email:'', modifiedDate:'', totalParkingSpace:'', parkingType:'What is predicate for Parking type', availableNumberOfSpots:'',  }
       };
   },
   components: {
     // Graph,
     Test
-  },
-  mounted() {
-
-                // update();
-    // const svg = d3.select(this.$el)
-    //   .append('svg')
-    //   .attr('width', 500)
-    //   .attr('height', 270)
-    //   .append('g')
-    //   .attr('transform', 'translate(0, 10)');
-
-    // const x = d3.scaleLinear().range([0, 430]);
-    // const y = d3.scaleLinear().range([210, 0]);
-    // d3.axisLeft().scale(x);
-    // d3.axisTop().scale(y);
-    // x.domain(d3.extent(this.data, (d, i) => i));
-    // y.domain([0, d3.max(this.data, d => d)]);
-
-    // const createPath = d3.line()
-    //   .x((d, i) => x(i))
-    //   .y(d => y(d));
-    // svg.append('path').attr('d', createPath(this.data));
-
-    this.calculatePath();
   },
   methods: {
     getScales() {
@@ -282,9 +264,91 @@ export default {
         .x((d, i) => scale.x(i))
         .y(d => scale.y(d));
       this.line = path(this.data);
-    }
-  }
+    },
+    getImgUrl(img) {
+        var images = require.context('@/assets/images', false, /\.jpg$/)
+        return images('./' + img + ".jpg")
+    },
+     getGraphInfoByGraphName() {
+         const baseURI = "http://localhost:3000";
+         axios.get(baseURI+`/graphs/${this.graphDetail.name}`).then(gInfoRes => {
+             console.log(gInfoRes.data);
+             this.graphInfoData = gInfoRes.data;
 
+             const graphTriplesArr = this.graphInfoData['graph-triples'];
+             for (let i = 0; i <  graphTriplesArr.length; i++) {
+
+                 const strSubject = graphTriplesArr[i].subject;
+                 const strPredicate = graphTriplesArr[i].predicate;
+                 let rexForNumbers = /^(\D*)(\d+)/;
+                 let rexForDateTime = /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/;
+
+                 // just for example now taking 1_yatap_01
+                 let graphNameVal = false
+                 if (strSubject.search('1_yatap_01') !== -1)
+                     graphNameVal = true;
+
+            if (graphNameVal) {
+                 if (strPredicate.search('hasPostalAddress') !== -1)
+                     this.graphInfoDataForTextTab.address = graphTriplesArr[i].object;
+                 else if (strPredicate.search('hasLatitute') !== -1)
+                     this.graphInfoDataForTextTab.lat = graphTriplesArr[i].object.match(/^(\D*)(\d+).(\D*)(\d+)/)[0];
+                 else if (strPredicate.search('hasLongitude') !== -1)
+                     this.graphInfoDataForTextTab.long = graphTriplesArr[i].object.match(/^(\D*)(\d+).(\D*)(\d+)/)[0];
+                 else if (strPredicate.search('hasBeginning') !== -1)
+                     this.graphInfoDataForTextTab.beginningDate = graphTriplesArr[i].object;
+                 else if (strPredicate.search('hasEnd') !== -1)
+                     this.graphInfoDataForTextTab.endDate = graphTriplesArr[i].object;
+                 // else if (graphNameVal && strPredicate.search('dayOfWeek') !== -1)
+                 else if (strPredicate.search('hasTelephoneNumber') !== -1)
+                     this.graphInfoDataForTextTab.contact = graphTriplesArr[i].object;
+                 else if (strPredicate.search('hasEmail') !== -1)
+                     this.graphInfoDataForTextTab.email = graphTriplesArr[i].object;
+                 // else if (graphNameVal && strPredicate.search('hasDateModified') !== -1)
+                 else if (strPredicate.search('inXSDDateTime') !== -1)
+                     this.graphInfoDataForTextTab.modifiedDate = graphTriplesArr[i].object.match(rexForDateTime)[0];
+                 else if (strPredicate.search('hasTotalSpots') !== -1)
+                     this.graphInfoDataForTextTab.totalParkingSpace = graphTriplesArr[i].object.match(rexForNumbers)[0];
+                 else if (strPredicate.search('hasAvailableNumberOfSpots') !== -1)
+                     this.graphInfoDataForTextTab.availableNumberOfSpots = graphTriplesArr[i].object.match(rexForNumbers)[0];
+
+             }else
+                console.log('no data found for graph Name',this.graphDetail.name);
+                 // alert('no data found for graph Name: ', this.graphDetail.name);
+             }
+
+         });
+         // axios.get(baseURI+`/graphs?`,{ graphType:'ontology', keyword: ""}).then(gSearchRes => {
+         //     console.log(gSearchRes);
+         //     this.graphSearchData = gSearchRes
+         // })
+      }
+  },
+   mounted() {
+
+        this.getGraphInfoByGraphName();
+        // update();
+        // const svg = d3.select(this.$el)
+        //   .append('svg')
+        //   .attr('width', 500)
+        //   .attr('height', 270)
+        //   .append('g')
+        //   .attr('transform', 'translate(0, 10)');
+
+        // const x = d3.scaleLinear().range([0, 430]);
+        // const y = d3.scaleLinear().range([210, 0]);
+        // d3.axisLeft().scale(x);
+        // d3.axisTop().scale(y);
+        // x.domain(d3.extent(this.data, (d, i) => i));
+        // y.domain([0, d3.max(this.data, d => d)]);
+
+        // const createPath = d3.line()
+        //   .x((d, i) => x(i))
+        //   .y(d => y(d));
+        // svg.append('path').attr('d', createPath(this.data));
+
+        this.calculatePath();
+    },
 }
 </script>
 
@@ -343,12 +407,6 @@ marker {
     text-align: center
 }
 
-.imgbox {
-    border: solid 1px;
-    margin: 0px 35px 0px 35px;
-    background-color: #efefef
-}
-
 .name {
     margin: 20px 0px 0px 20px;
     font-size: 1.1em;
@@ -376,5 +434,14 @@ marker {
     height: 120px;
     width: 215px;
 }
+.tbColSet2 {
+    background-color: #c6c9cdc9;
+    bottom: 1px;
+}
+.tbColSet3 {
+    background-color: #dfe3e8c9;
+    bottom: 1px;
+}
+
 
 </style>

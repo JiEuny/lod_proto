@@ -3,13 +3,17 @@
     <h2 style=" margin-left: 30px; margin-top: 20px  ">Keyword: {{$store.state.keyword}}</h2>
     <!-- <button v-on:click=getKeyword>qweqr</button> -->
     <!-- {{$keyword}} -->
+<!--    <div class="data" v-for="gd in getGraphList" :key="gd.id">-->
+<!--    <div class="data" v-for="gd in getGraphList.graphList" :key="gd.id">-->
     <div class="data" v-for="gd in getGraphList" :key="gd.id">
       <el-row>
         <el-col :span="4">
           <div class="grid-content bg-purple">
             <br />
             <div class="imgbox-updated">
-                <img class="img" v-bind:src="gd.imageLink" v-bind:alt="'Park-' + gd.id">
+<!--                <img class="img" v-bind:src="gd.imageLink" v-bind:alt="'Park-' + gd.id">-->
+<!--                <img class="img" v-bind:src="imageLink" v-bind:alt="'Park-' + ''">-->
+                <img class="img"  :src="getImgUrl(gd.image)" v-bind:alt="gd.name">
             </div>
             <br />
           </div>
@@ -19,7 +23,8 @@
 <!--            <el-col :span="4" class="park">{{gd.parking}}</el-col>-->
 <!--          </el-row>-->
           <br/>
-          <div class="name">{{gd.parkingLot}}</div>
+<!--          <div class="name">{{gd.parkingLot}}</div>-->
+          <div class="name">{{gd.graphName}}</div>
           <el-row> <!--gd.parking -> will be graph name -->
 <!--              <router-link :to="`/detail/${gd.parking}`"><el-col :span="2" class="btn">LOD</el-col> </router-link>-->
               <router-link :to="{ name: 'Detail', params: { graph_obj: gd }}"><el-col :span="2" class="btn">LOD</el-col> </router-link>
@@ -40,13 +45,15 @@ export default {
   data() {
     return {
       keyword: this.$store.state.keyword,
-        //getGraphList: [] // it will uncommented once getKeyword data prepared
-        //Note-> hardcoded array for now, this result will populate from getKeyword method (props name in objects are taken randomly for binding testing)
-        getGraphList: [
-            {id:1, parkingLot : 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_1', parking:'Yatap first transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/smart_city_ontology.jpg')},
-            {id:2, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkingspot_23_yt_lot_1', parking:'Yatap second transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/smart_city_ontology.jpg')},
-            {id:3, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_3', parking:'CGV Yatap parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/smart_city_ontology.jpg')}
-        ]
+        getGraphList: [],
+
+        // getGraphList: [
+        //     {id:1, parkingLot : 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_1', parking:'Yatap first transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/smart_city_ontology.jpg')},
+        //     {id:2, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkingspot_23_yt_lot_1', parking:'Yatap second transfer parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/smart_city_ontology.jpg')},
+        //     {id:3, parkingLot: 'http://www.city-hub.kr/ontologies/2019/1/parking#parkinglot_yt_lot_3', parking:'CGV Yatap parking lot', lan:'forMap', lat:'forMap', imageLink: require('@/assets/images/smart_city_ontology.jpg')}
+        // ],
+        // imageLink: '',
+        getGraphInfo : ''
     };
   },
   mounted() {
@@ -74,15 +81,82 @@ export default {
 
     getKeyword() {
       const baseURI = "http://localhost:3000";
-      axios.get(baseURI+'/graphList').then(res => {
-        this.getGraphList = res.data;
-        // alert(res.data.graphList);
+      const params = {
+          graphType: 'ontology,instance',
+          limit: 10
+      }
+      if(this.$store.state.keyword)
+          params.keyword = this.$store.state.keyword;
+
+        // const searchParams = new URLSearchParams(params).toString();
+      axios.get(baseURI + `/graphList?graphType=ontology,instance&limit=10&keyword=${this.$store.state.keyword}`, params).then(res => {
+          // this.imageLink = require('@/assets/images/air_quality.jpg');
+          // this.getGraphList = res.data;
+          const graphListArr = [];
+          const url = `http://www.city-hub.kr/ontologies/2019/1`;
+
+          for (let i = 0; i <  res.data.graphList.length; i++){
+              const str =  res.data.graphList[i];
+             if(str.search('parking:') !== -1)
+                 graphListArr.push(
+                     {
+                         name : str,
+                         graphName : url + `/parking#`+ str,
+                         image : 'parking'
+                     }
+                 )
+             else if (str.search('air-quality:') !== -1)
+                 graphListArr.push(
+                     {
+                         id: i,
+                         name : str,
+                         graphName : url + `/air-quality#`+ str,
+                         image : 'air_quality'
+                     }
+                 )
+             else if (str.search('weather:') !== -1)
+                 graphListArr.push(
+                     {
+                         id: i,
+                         name : str,
+                         graphName : url + `/weather#` + str,
+                         image : 'weather'
+                     }
+                 )
+             else if (str.search(':') === -1)
+                 graphListArr.push(
+                     {
+                         id: i,
+                         name : str,
+                         graphName : url + '/' + str,
+                         image : 'ontology'
+                     }
+                 )
+             else
+                 graphListArr.push(
+                     {
+                         id: i,
+                         name : 'dont know',
+                         graphName : 'dont know',
+                         image : 'ontology'
+                     }
+                 )
+             }
+
+          this.getGraphList = graphListArr;
+
         console.log(this.getGraphList.graphList);
-        axios.get(baseURI+'/graph').then(res2 => {
-          console.log(res2.data);
-        })
+        console.log('-------------------------->',this.getGraphList);
+        // axios.get(baseURI+'/graph').then(gInfoRes => {
+        //   console.log(gInfoRes.data);
+        //     this.getGraphInfo = gInfoRes.data;
+        // })
       })
-    }
+    },
+    getImgUrl(img) {
+          var images = require.context('@/assets/images', false, /\.jpg$/)
+          return images('./' + img + ".jpg")
+      }
   },
   created() {},
 };
