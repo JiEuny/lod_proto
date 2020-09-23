@@ -1,5 +1,5 @@
 <template>
-
+<!--<div>-->
     <svg width="100%" height="100%">
 
     </svg>
@@ -10,50 +10,19 @@
 import * as d3 from 'd3';
 
 export default {
-    name: 'Test2',
+    name: 'DrawGraph',
     data() {
         return {
             svg: null,
             zoom: null,
             width: 2048,
             height: 768,
-            graphdata: {
-                "nodes":  [
-                    { "name": "야탑주차장",              "group":  1, "class": "system" },
-                    { "name": "잔여주차공간",            "group":  1, "class": "system" },
-                    { "name": "kernel",                 "group":  1, "class": "system" },
-                    { "name": "systemd",                "group":  1, "class": "mount" },
-                    { "name": "-.mount",                "group":  1, "class": "mount" },
-                    { "name": "init.scope",             "group":  1, "class": "init" },
-                    { "name": "system.slice",           "group":  1, "class": "init" },
-                    { "name": "system-getty.slice",     "group":  1, "class": "init" },
-                    { "name": "systemd-initctl.socker", "group":  1, "class": "init" },
-                    { "name": "tmp.mount",              "group":  1, "class": "init" },
-                    { "name": "sys-devices",            "group":  2, "class": "init" },
-                    { "name": "boot.mount",             "group":  2, "class": "init" }
-                ],
-                "linkes":  [
-                    { "source":  1,  "target":  0,  "value":  1, "type": "depends" },
-                    { "source":  2,  "target":  1,  "value":  8, "type": "depends" },
-                    { "source":  3,  "target":  2,  "value":  6, "type": "depends" },
-                    { "source":  4,  "target":  3,  "value":  1, "type": "needs" },
-                    { "source":  5,  "target":  3,  "value":  1, "type": "needs" },
-                    { "source":  6,  "target":  3,  "value":  1, "type": "needs" },
-                    { "source":  7,  "target":  3,  "value":  1, "type": "needs" },
-                    { "source":  8,  "target":  3,  "value":  2, "type": "needs" },
-                    { "source":  9,  "target":  3,  "value":  1, "type": "needs" },
-                    { "source": 11,  "target": 10,  "value":  1, "type": "depends" },
-                    { "source": 11,  "target":  3,  "value":  3, "type": "depends" },
-                    { "source": 11,  "target":  2,  "value":  3, "type": "depends" },
-                    { "source": 11,  "target":  3,  "value":  5, "type": "needs" }
-                ]
-            },
-
+            graphdata: this.drawGraphData,
             simulation: null,
             selections: {},
             forceProperties: {
                 center: {
-                    x: 0.5,
+                    x: 0.4,
                     y: 0.5
                 },
                 charge: {
@@ -80,12 +49,13 @@ export default {
                 },
                 link: {
                     enabled: true,
-                    distance: 100,
+                    distance: 200,
                     iterations: 1
                 }
             },
         }
     },
+    props: {drawGraphData : {}},
     mounted() {
         this.selections.svg = d3.select("svg")
         this.selections.graph = this.selections.svg.append("g")
@@ -97,7 +67,7 @@ export default {
         this.selections.svg.call(this.zoom)
 
         this.simulation = d3.forceSimulation()
-            .force("link", d3.forceLink())
+            .force("link", d3.forceLink().id(function(d) { return d.id; }))//.id((d, i) => d.index))
             .force("charge", d3.forceManyBody())
             .force("collide", d3.forceCollide())
             .force("center", d3.forceCenter())
@@ -152,53 +122,19 @@ export default {
         updateData() {
             this.simulation.nodes(this.nodes)
             this.simulation.force("link").links(this.links)
+            //, d3.forceLink().id(function(d) { return d.id; }))
 
             const simulation = this.simulation
             const graph = this.selections.graph
 
-            graph.selectAll("path")
-                .data(simulation.force("link").links())
-                .enter().append("path")
-                .attr("class", d=> "link " + d.type)
-                .attr("stroke", "#005900")
-                .exit().remove()
-
-            // if(this.node.class == "system") {
-
-                // graph.selectAll("circle")
-                // .data(simulation.nodes())
-                // .enter().append("circle")
-                // .attr("r", 25)
-                // .attr("class", d => d.class)
-                // .attr("fill", "#cce5ff")
-                // .attr("stroke", "#003366")
-                // .exit().remove()
-
-            // }
-
             graph.selectAll("circle")
                 .data(simulation.nodes())
                 .enter().append("circle")
-                .attr("r", 25)
+                .attr("r", 35)
                 .attr("class", d => d.class)
-                .attr("fill", "#ffe5e5")
+                .attr("fill", "#c7c2d4")
                 .attr("stroke", "#660000")
                 .exit().remove()
-
-
-
-
-
-            // graph.selectAll("rect")
-            //     .data(simulation.nodes())
-            //     .enter().append("rect")
-            //     .attr("x", -70)
-            //     .attr("y", 40)
-            //     .attr("width", 100)
-            //     .attr("height", 30)
-            //     .attr("fill", "#cce5ff")
-            //     .attr("stroke", "#003366")
-            //     .exit().remove()
 
             graph.selectAll("text")
                 .data(simulation.nodes())
@@ -211,6 +147,28 @@ export default {
                 .attr("text-anchor", "middle")
                 .text(d => d.name)
 
+            graph.selectAll("path")
+                .data(simulation.force("link").links())
+                .enter().append("path")//.attr("id",function(d,i) { return "linkId_" + i; })
+                .attr("class", d=> "link " + d.type).attr("id",function(d,i) { return "linkId_" + i; })
+                .attr("stroke", "#06592a")
+                .exit().remove()
+
+            //////////////////////////////////////////
+
+/*            graph.selectAll("label")
+                .data(simulation.force("link").links())
+                .enter().append("text")
+                .attr("class","label")
+                .attr("dx",20)
+                .attr("dy",0)
+                .style("fill","red")
+                .append("textPath")
+                .attr("xlink:href",function(d,i) { return "#linkId_" + i;})
+                .text(function(d,i) { return "Nargis-- " + i;});*/
+
+            ////////////////////////////////////////////
+
             // graph.selectAll("text")
             //     .data(simulation.node2())
             //     .enter().append("text")
@@ -221,6 +179,31 @@ export default {
             //     .attr("text-shadow", "0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff")
             //     .attr("text-anchor", "middle")
             //     .text(d => d.name)
+
+            // if(this.node.class == "system") {
+
+            // graph.selectAll("circle")
+            // .data(simulation.nodes())
+            // .enter().append("circle")
+            // .attr("r", 25)
+            // .attr("class", d => d.class)
+            // .attr("fill", "#cce5ff")
+            // .attr("stroke", "#003366")
+            // .exit().remove()
+
+            // }
+
+            // graph.selectAll("rect")
+            //     .data(simulation.nodes())
+            //     .enter().append("rect")
+            //     .attr("x", -70)
+            //     .attr("y", 40)
+            //     .attr("width", 100)
+            //     .attr("height", 30)
+            //     .attr("fill", "#cce5ff")
+            //     .attr("stroke", "#003366")
+            //     .exit().remove()
+
 
             simulation.alpha(1).restart();
         },
@@ -245,7 +228,7 @@ export default {
     },
 
     computed: {
-        // node2() {return this.graphdata.node2},
+
         nodes() { return this.graphdata.nodes; },
         links() { return this.graphdata.linkes; }
     }

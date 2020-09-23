@@ -61,42 +61,26 @@ export default {
 
   },
   methods: {
-    // getKeyword() {
-    //   const baseURI = "http://localhost:3000";
-    //   this.$http.get(`${baseURI}/graphs`).then((result) => {
-    //     // alert(result.data);
-    //     this.gets = result.data;
-    //     // alert(this.keyword)
-    //   });
-    //   alert(this.gets)
-    // },
-    // getKeyword() {
-    //   // const axios = require('axios');
-    //   axios.get('http://192.168.0.20:3000/graphs')
-    //   .then(res => {
-    //     this.gets = res.data.map(r => r.data)
-    //   })
-    //   alert(this.gets);
-    // }
 
     getKeyword() {
 
       const baseURI = "http://localhost:3000";
-      const params = {
+
+/*      const params = {
           graphType: 'ontology,instance',
           limit: 10
       }
       if(this.$store.state.keyword)
-          params.keyword = this.$store.state.keyword;
+          params.keyword = this.$store.state.keyword;*/
         // const searchParams = new URLSearchParams(params).toString();
 
         // axios.get(baseURI + `/graphList?graphType=ontology,instance&keyword=${this.$store.state.keyword}&prefixFormat=simple&limit=100`).then(res => {
         axios.get(baseURI + `/graphs?graphType=ontology,instance&keyword=${this.$store.state.keyword}&prefixFormat=simple&limit=100`).then(res => {
-          // this.imageLink = require('@/assets/images/air_quality.jpg');
           // this.getGraphList = res.data;
           const graphListArr = [];
           const url = `http://www.city-hub.kr/ontologies/2019/1/`;
 
+          // create graph array to display in select page
           for (let i = 0; i <  res.data.graphList.length; i++){
               const str =  res.data.graphList[i];
              if(str.search('parking:') !== -1)
@@ -148,13 +132,11 @@ export default {
           this.getGraphList = graphListArr;
 
         console.log(this.getGraphList.graphList);
-        console.log('-------------------------->',this.getGraphList);
-        // axios.get(baseURI+'/graph').then(gInfoRes => {
-        //   console.log(gInfoRes.data);
-        //     this.getGraphInfo = gInfoRes.data;
-        // })
+        console.log('getGraphList---->',this.getGraphList);
+
       })
     },
+      // render image dynamically
     getImgUrl(img) {
           var images = require.context('@/assets/images', false, /\.jpg$/)
           return images('./' + img + ".jpg")

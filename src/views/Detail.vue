@@ -6,19 +6,13 @@
                     <div class="grid-content bg-purple">
                         <br />
                         <div class="imgbox-updated">
-<!--                            <img class="img" v-bind:src="graphDetail.imageLink" v-bind:alt="'Park-' + graphDetail.id">-->
-<!--                            <img class="img" v-bind:src="imageLink" v-bind:alt="'Park-' + graphDetail.id">-->
                             <img class="img"  :src="getImgUrl(graphDetail.image)" v-bind:alt="graphDetail.name">
                         </div>
                         <br />
                     </div>
                 </el-col>
                 <el-col :span="20">
-     <!--               <el-row>
-                        <el-col :span="5" class="park">{{graphDetail.parking}}</el-col>
-                    </el-row>-->
                     <br/>
-<!--                    <div class="name">{{graphDetail}}</div>-->
                     <div class="name">{{graphDetail.graphName}}</div>
                     <el-row>
                         <div class="name" style="color:blue; text-decoration: underline;">http://203.253.128.164:7579/ParkingSpot/Yatap/Public</div>
@@ -71,9 +65,8 @@
                     </div>
 
                 </el-tab-pane>
-                <el-tab-pane label="Test" style="text-align:center; height:786px">
-
-                    <Test/>
+                <el-tab-pane label="Graph" style="text-align:center; height:786px">
+                    <DrawGraph  v-if="graphNodesLinksDataLoaded" :drawGraphData="graphdataProps"/>
                 </el-tab-pane>
                 <el-tab-pane label="LOD publish">
                     <div style="text-align:center">
@@ -87,212 +80,59 @@
 </template>
 
 <script>
-import * as d3 from 'd3';
+
 import axios from 'axios'
-// import Graph from './Graph';
-import Test from './Test2';
-
-// var svg = d3.select("#svg-body").append("svg")
-// 				.attr("width", 800)
-// 				.attr("height", 600)
-// 				;
-
-// 	var force = d3.layout.force().size([800, 600]);
-
-//     var graph = triplesToGraph(this.triples);
-
-// function filterNodesById(nodes,id){
-// 			return nodes.filter(function(n) { return n.id === id; });
-// 		}
-
-// 		function triplesToGraph(triples){
-
-// 			svg.html("");
-// 			//Graph
-// 			var graph={nodes:[], links:[]};
-
-// 			//Initial Graph from triples
-// 			triples.forEach(function(triple){
-// 				var subjId = triple.subject;
-// 				var predId = triple.predicate;
-// 				var objId = triple.object;
-
-// 				var subjNode = filterNodesById(graph.nodes, subjId)[0];
-// 				var objNode  = filterNodesById(graph.nodes, objId)[0];
-
-// 				if(subjNode==null){
-// 					subjNode = {id:subjId, label:subjId, weight:1};
-// 					graph.nodes.push(subjNode);
-// 				}
-
-// 				if(objNode==null){
-// 					objNode = {id:objId, label:objId, weight:1};
-// 					graph.nodes.push(objNode);
-// 				}
-
-
-// 				graph.links.push({source:subjNode, target:objNode, predicate:predId, weight:1});
-// 			});
-
-// 			return graph;
-// 		}
-
-
-// 		function update(){
-// 			// ==================== Add Marker ====================
-//             svg.append("svg:defs").selectAll("marker")
-//                 .data(["end"])
-//                 .enter().append("svg:marker")
-//                 .attr("id", String)
-//                 .attr("viewBox", "0 -5 10 10")
-//                 .attr("refX", 30)
-//                 .attr("refY", -0.5)
-//                 .attr("markerWidth", 6)
-//                 .attr("markerHeight", 6)
-//                 .attr("orient", "auto")
-//                 .append("svg:polyline")
-//                 .attr("points", "0,-5 10,0 0,5");
-
-// 			// ==================== Add Links ====================
-// 			var links = svg.selectAll(".link")
-// 								.data(graph.links)
-// 								.enter()
-// 								.append("line")
-// 									.attr("marker-end", "url(#end)")
-// 									.attr("class", "link")
-// 									.attr("stroke-width",1)
-// 							;//links
-
-// 			// ==================== Add Link Names =====================
-//             var linkTexts = svg.selectAll(".link-text")
-//                 .data(graph.links)
-//                 .enter()
-//                 .append("text")
-//                 .attr("class", "link-text")
-//                 .text( function (d) { return d.predicate; });
-
-// 				//linkTexts.append("title")
-// 				//		.text(function(d) { return d.predicate; });
-
-// 			// ==================== Add Link Names =====================
-//             var nodeTexts = svg.selectAll(".node-text")
-//                 .data(graph.nodes)
-//                 .enter()
-//                 .append("text")
-//                 .attr("class", "node-text")
-//                 .text( function (d) { return d.label; });
-
-// 				//nodeTexts.append("title")
-// 				//		.text(function(d) { return d.label; });
-
-// 			// ==================== Add Node =====================
-// 			var nodes = svg.selectAll(".node")
-// 								.data(graph.nodes)
-// 								.enter()
-// 								.append("circle")
-// 									.attr("class", "node")
-// 									.attr("r",8)
-// 									.call(force.drag)
-// 							;//nodes
-
-// 			// ==================== Force ====================
-// 			force.on("tick", function() {
-// 				nodes
-// 					.attr("cx", function(d){ return d.x; })
-// 					.attr("cy", function(d){ return d.y; })
-// 					;
-
-// 				links
-//                     .attr("x1", 	function(d)	{ return d.source.x; })
-//                     .attr("y1", 	function(d) { return d.source.y; })
-//                     .attr("x2", 	function(d) { return d.target.x; })
-//                     .attr("y2", 	function(d) { return d.target.y; });
-
-// 				nodeTexts
-// 					.attr("x", function(d) { return d.x + 12 ; })
-// 					.attr("y", function(d) { return d.y + 3; })
-// 					;
-
-// 				linkTexts
-// 					.attr("x", function(d) { return 4 + (d.source.x + d.target.x)/2  ; })
-// 					.attr("y", function(d) { return 4 + (d.source.y + d.target.y)/2 ; })
-// 					;
-// 			});
-
-// 			// ==================== Run ====================
-//             force
-//                 .nodes(graph.nodes)
-//                 .links(graph.links)
-//                 .charge(-500)
-//                 .linkDistance(100)
-//                 .start();
-// 		}
+import DrawGraph from './DrawGraph';
 
 export default {
   name: 'Detail',
   data() {
       return {
-          data: [99, 71, 78, 25, 36, 92],
-          line: '',
-          triples: [
-            {subject:"ThaiLand", predicate:"hasFood", object:"TomYumKung"}
-            ],
           graphDetail :  this.$route.params.graph_obj,
-          // imageLink: require('@/assets/images/smart_city_ontology.jpg'),
+          graphNodesLinksDataLoaded: false,
           graphInfoData: '',
           graphInfoDataForTextTab: {address: '', lat:'', long: '', beginningDate:'', endDate:'', contact:'',
-              email:'', modifiedDate:'', totalParkingSpace:'', parkingType:'What is predicate for Parking type', availableNumberOfSpots:'',  }
-      };
+           email:'', modifiedDate:'', totalParkingSpace:'', availableNumberOfSpots:'',  },
+
+          graphInfoDataForNodesLinks:{nodes: [], linkes:[]},
+          graphdataProps : '',
+
+          };
   },
   components: {
-    // Graph,
-    Test
+      DrawGraph
   },
   methods: {
-    getScales() {
-      const x = d3.scaleTime().range([0, 430]);
-      const y = d3.scaleLinear().range([210, 0]);
-      d3.axisLeft().scale(x);
-      d3.axisBottom().scale(y);
-      x.domain(d3.extent(this.data, (d, i) => i));
-      y.domain([0, d3.max(this.data, d => d)]);
-      return { x, y };
-    },
-    calculatePath() {
-      const scale = this.getScales();
-      const path = d3.line()
-        .x((d, i) => scale.x(i))
-        .y(d => scale.y(d));
-      this.line = path(this.data);
-    },
     getImgUrl(img) {
         var images = require.context('@/assets/images', false, /\.jpg$/)
         return images('./' + img + ".jpg")
     },
      getGraphInfoByGraphName() {
          const baseURI = "http://localhost:3000";
-         axios.get(baseURI+`/graphs/${this.graphDetail.name}?prefixFormat=normal&limit=10`).then(gInfoRes => {
+        const gName =  (this.graphDetail) ?  this.graphDetail.name : 'no name found'
+         axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10`).then(gInfoRes => {
              console.log(gInfoRes.data);
              this.graphInfoData = gInfoRes.data;
 
              const graphTriplesArr = this.graphInfoData['graph-triples'];
+             let regForNumbers = /^(\D*)(\d+)/;
+             let regForDateTime = /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/;
              for (let i = 0; i <  graphTriplesArr.length; i++) {
 
                  const strSubject = graphTriplesArr[i].subject;
                  const strPredicate = graphTriplesArr[i].predicate;
-                 let rexForNumbers = /^(\D*)(\d+)/;
-                 let rexForDateTime = /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/;
-
-                 // just for example now taking 1_yatap_01
                  let graphNameVal = false;
-                 if (strSubject.search('1_yatap_01') !== -1)
-                     graphNameVal = true;
+                 const gNameForFilter = gName.substring(gName.indexOf(":") + 1, gName.length);
 
+            if (strSubject.search(gNameForFilter) !== -1)
+                  graphNameVal = true;
+
+            // get create properties set (Text Tab data) for given graphName
             if (graphNameVal) {
                  if (strPredicate.search('hasPostalAddress') !== -1)
                      this.graphInfoDataForTextTab.address = graphTriplesArr[i].object;
                  else if (strPredicate.search('hasLatitute') !== -1)
-                     this.graphInfoDataForTextTab.lat = graphTriplesArr[i].object.match(/^(\D*)(\d+).(\D*)(\d+)/)[0];
+                     this.graphInfoDataForTextTab.lat = graphTriplesArr[i].object.match(/^(\D*)(\d+).(\D*)(\d+)/)[0]; // get lat, long from string by regex
                  else if (strPredicate.search('hasLongitude') !== -1)
                      this.graphInfoDataForTextTab.long = graphTriplesArr[i].object.match(/^(\D*)(\d+).(\D*)(\d+)/)[0];
                  else if (strPredicate.search('hasBeginning') !== -1)
@@ -306,85 +146,81 @@ export default {
                      this.graphInfoDataForTextTab.email = graphTriplesArr[i].object;
                  // else if (graphNameVal && strPredicate.search('hasDateModified') !== -1)
                  else if (strPredicate.search('inXSDDateTime') !== -1)
-                     this.graphInfoDataForTextTab.modifiedDate = graphTriplesArr[i].object.match(rexForDateTime)[0];
+                     this.graphInfoDataForTextTab.modifiedDate = graphTriplesArr[i].object.match(regForDateTime)[0]; // get date from string by regex
                  else if (strPredicate.search('hasTotalSpots') !== -1)
-                     this.graphInfoDataForTextTab.totalParkingSpace = graphTriplesArr[i].object.match(rexForNumbers)[0];
+                     this.graphInfoDataForTextTab.totalParkingSpace = graphTriplesArr[i].object.match(regForNumbers)[0];// get number from string by regex
                  else if (strPredicate.search('hasAvailableNumberOfSpots') !== -1)
-                     this.graphInfoDataForTextTab.availableNumberOfSpots = graphTriplesArr[i].object.match(rexForNumbers)[0];
+                     this.graphInfoDataForTextTab.availableNumberOfSpots = graphTriplesArr[i].object.match(regForNumbers)[0];
 
              }else
-                console.log('no data found for graph Name',this.graphDetail.name);
-                 // alert('no data found for graph Name: ', this.graphDetail.name);
+                console.log('no data found for graph Name');
              }
 
-         });
-         // axios.get(baseURI+`/graphs?`,{ graphType:'ontology', keyword: ""}).then(gSearchRes => {
-         //     console.log(gSearchRes);
-         //     this.graphSearchData = gSearchRes
-         // })
+             // create array (for Graph Tab) of node and links to draw graph
+
+             for (let j = 0; j <  graphTriplesArr.length; j++) {
+
+
+                 // Original string of sub, obj and pred
+                 const strSubjectOrg = graphTriplesArr[j].subject;
+                 const strPredicateOrg = graphTriplesArr[j].predicate;
+                 const strObjectOrg =  graphTriplesArr[j].object;
+
+                   // remove word from sub string before ':',  like parking:text -> text
+                 const strSubject = strSubjectOrg.substring(strSubjectOrg.indexOf(":") + 1, strSubjectOrg.length);
+                 const strPredicate = strPredicateOrg.substring(strPredicateOrg.indexOf(":") + 1, strPredicateOrg.length);
+
+                   // remove word from obj string after '^^',  like 110^^textbalaba -> textbalaba
+                 const strObject = (strObjectOrg.indexOf('^') !== -1 || strObjectOrg.search(':') !== 0) ?
+                    ((strObjectOrg.indexOf('^') !== -1 ) ? strObjectOrg.substring(0,strObjectOrg.indexOf("^^"))
+                     : strObjectOrg.substring(strObjectOrg.indexOf(":") + 1, strObjectOrg.length))
+                     : strObjectOrg
+
+                 let graphNameVal = false;
+                 // remove word from string before ':',  like parking:text -> text
+                 const gNameForFilter = gName.substring(gName.indexOf(":") + 1, gName.length);
+
+                 if (strSubject.search(gNameForFilter) !== -1)
+                     graphNameVal = true;
+
+                 if (graphNameVal) {
+                     // discluded hasImage pred
+                 if(strPredicate.search('hasImage') === -1){
+                     // create nodes array for graph
+                     if(this.graphInfoDataForNodesLinks.nodes.indexOf(strSubject) === -1) {
+                         this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject});
+                     }
+
+                     if(this.graphInfoDataForNodesLinks.nodes.indexOf(strObject) === -1) {
+                         this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject});
+                     }
+                      // create linkes array for graph
+                     this.graphInfoDataForNodesLinks.linkes.push({source: strSubject, target: strObject, type: strPredicate})
+                 }
+                }
+
+             }
+             console.log('-----graphInfoDataForNodesLinks-----> ',this.graphInfoDataForNodesLinks);
+            // pass  graph array to props
+            this.graphdataProps = this.graphInfoDataForNodesLinks;
+            // load DrawGraph component  when prapare graph array
+            this.graphNodesLinksDataLoaded = true;
+             });
       }
   },
    mounted() {
-
+             // mount method to get graph triple by graph api (param -> graph name)
         this.getGraphInfoByGraphName();
-        // update();
-        // const svg = d3.select(this.$el)
-        //   .append('svg')
-        //   .attr('width', 500)
-        //   .attr('height', 270)
-        //   .append('g')
-        //   .attr('transform', 'translate(0, 10)');
-
-        // const x = d3.scaleLinear().range([0, 430]);
-        // const y = d3.scaleLinear().range([210, 0]);
-        // d3.axisLeft().scale(x);
-        // d3.axisTop().scale(y);
-        // x.domain(d3.extent(this.data, (d, i) => i));
-        // y.domain([0, d3.max(this.data, d => d)]);
-
-        // const createPath = d3.line()
-        //   .x((d, i) => x(i))
-        //   .y(d => y(d));
-        // svg.append('path').attr('d', createPath(this.data));
-
-        this.calculatePath();
     },
 }
 </script>
 
 
 <style scoped>
-.node {
-    stroke: #fff;
-    fill:#ddd;
-    stroke-width: 1.5px;
-    }
-.link {
-    stroke: #999;
-    stroke-opacity: .6;
-    stroke-width: 1px;
-}
+
 marker {
     stroke: #999;
     fill:rgba(124,240,10,0);
-}
-.node-text {
-	font: 11px sans-serif;
-	fill:black;
-}
-.link-text {
-	font: 9px sans-serif;
-	fill:grey;
-}
-
-.svg {
-    margin: 25px;
-}
-
-.path {
-    fill:none;
-    stroke: #76bf8a;
-    stroke-width: 3px;
 }
 
 .data {
