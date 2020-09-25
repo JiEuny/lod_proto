@@ -61,13 +61,13 @@ export default {
         this.selections.graph = this.selections.svg.append("g")
 
         this.zoom = d3.zoom()
-            .scaleExtent([1 / 4, 4])
+            .scaleExtent([0.6, 10])
             .on('zoom', this.zoomed)
 
         this.selections.svg.call(this.zoom)
 
         this.simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(function(d) { return d.id; }))//.id((d, i) => d.index))
+            .force("link", d3.forceLink().id(function(d) { return d.id; }))
             .force("charge", d3.forceManyBody())
             .force("collide", d3.forceCollide())
             .force("center", d3.forceCenter())
@@ -82,18 +82,22 @@ export default {
     methods: {
         tick() {
             const transform = d => {
-                return "translate(" + d.x + "," + d.y + ")";
+                // console.log('-----transform-d', d);
+                if(d.x && d.y)
+                 return "translate(" + d.x + "," + d.y + ")";
+
             }
 
             const link = d => {
+                // console.log('-link---dy', d.target);
                 return "M" + d.source.x + "," + d.source.y + " L" + d.target.x + "," + d.target.y;
             }
 
             const graph = this.selections.graph
             graph.selectAll("path").attr("d", link)
             graph.selectAll("circle").attr("transform", transform)
-            // graph.selectAll("rect").attr("transform", transform)
             graph.selectAll("text").attr("transform", transform)
+            // graph.selectAll("rect").attr("transform", transform)
         },
         updateForces() {
             this.simulation.force("center")
@@ -120,6 +124,24 @@ export default {
             this.simulation.alpha(1).restart();
         },
         updateData() {
+
+             this.dragstarted = (d) => {
+                if (!d3.event.active) simulation.alphaTarget(.03).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            this.dragged = (d) => {
+                d.fx = d3.event.x;
+                d.fy = d3.event.y;
+            }
+
+            this.dragended = (d) => {
+                if (!d3.event.active) simulation.alphaTarget(.03);
+                d.fx = null;
+                d.fy = null;
+            }
+
             this.simulation.nodes(this.nodes)
             this.simulation.force("link").links(this.links)
             //, d3.forceLink().id(function(d) { return d.id; }))
@@ -134,6 +156,10 @@ export default {
                 .attr("class", d => d.class)
                 .attr("fill", "#c7c2d4")
                 .attr("stroke", "#660000")
+                .call(d3.drag()
+                    .on("start", this.dragstarted)
+                    .on("drag", this.dragged)
+                    .on("end", this.dragended))
                 .exit().remove()
 
             graph.selectAll("text")
@@ -145,73 +171,33 @@ export default {
                 .attr("pointer-events", "none")
                 .attr("text-shadow", "0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff")
                 .attr("text-anchor", "middle")
-                .text(d => d.name)
+                .text(d => d.name);
 
             graph.selectAll("path")
                 .data(simulation.force("link").links())
-                .enter().append("path")//.attr("id",function(d,i) { return "linkId_" + i; })
+                .enter().append("path")
                 .attr("class", d=> "link " + d.type).attr("id",function(d,i) { return "linkId_" + i; })
                 .attr("stroke", "#06592a")
-                .exit().remove()
+                .exit().remove();
 
-            //////////////////////////////////////////
-
-/*            graph.selectAll("label")
+            graph.selectAll("linklabel")
                 .data(simulation.force("link").links())
                 .enter().append("text")
-                .attr("class","label")
-                .attr("dx",20)
+                .attr("class","linklabel")
+                .attr("dx",65)
                 .attr("dy",0)
-                .style("fill","red")
+                .style("fill","#7fb906")
                 .append("textPath")
                 .attr("xlink:href",function(d,i) { return "#linkId_" + i;})
-                .text(function(d,i) { return "Nargis-- " + i;});*/
-
-            ////////////////////////////////////////////
-
-            // graph.selectAll("text")
-            //     .data(simulation.node2())
-            //     .enter().append("text")
-            //     .attr("x", 0)
-            //     .attr("y", ".31em")
-            //     .attr("font", "10px sans-serif")
-            //     .attr("pointer-events", "none")
-            //     .attr("text-shadow", "0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff")
-            //     .attr("text-anchor", "middle")
-            //     .text(d => d.name)
-
-            // if(this.node.class == "system") {
-
-            // graph.selectAll("circle")
-            // .data(simulation.nodes())
-            // .enter().append("circle")
-            // .attr("r", 25)
-            // .attr("class", d => d.class)
-            // .attr("fill", "#cce5ff")
-            // .attr("stroke", "#003366")
-            // .exit().remove()
-
-            // }
-
-            // graph.selectAll("rect")
-            //     .data(simulation.nodes())
-            //     .enter().append("rect")
-            //     .attr("x", -70)
-            //     .attr("y", 40)
-            //     .attr("width", 100)
-            //     .attr("height", 30)
-            //     .attr("fill", "#cce5ff")
-            //     .attr("stroke", "#003366")
-            //     .exit().remove()
-
+                .text(function(d) { return d.type});
 
             simulation.alpha(1).restart();
         },
         zoomed() {
             const transform = d3.event.transform;
-            const translate = transform.x % (this.gridSize * transform.k) + ',' +
-                transform.y % (this.gridSize * transform.k)
-            this.selections.grid.attr('transform', 'translate(' +
+            const translate = transform.x % (transform.k) + ',' +
+                transform.y % (transform.k)
+            this.selections.svg.attr('transform', 'translate(' +
                 translate + ') scale(' + transform.k + ')');
             this.selections.graph.attr('transform', transform)
 
