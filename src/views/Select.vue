@@ -122,9 +122,9 @@ export default {
                  graphListArr.push(
                      {
                          id: i,
-                         name : 'dont know',
-                         graphName : 'dont know',
-                         image : 'ontology'
+                         name : str,
+                         graphName : str,
+                         image : 'noIdea'
                      }
                  )
              }

@@ -6,16 +6,17 @@
                     <div class="grid-content bg-purple">
                         <br />
                         <div class="imgbox-updated">
-                            <img class="img"  :src="getImgUrl(graphDetail.image)" v-bind:alt="graphDetail.name">
+                            <img class="img"  :src="getImgUrl(graphDetail ? graphDetail.image:'')" v-bind:alt="graphDetail?graphDetail.name:'No Default Image for Now'">
                         </div>
                         <br />
                     </div>
                 </el-col>
                 <el-col :span="20">
                     <br/>
-                    <div class="name">{{graphDetail.graphName}}</div>
+                    <div class="name">{{graphDetail?graphDetail.graphName:''}}</div>
                     <el-row>
                         <div class="name" style="color:blue; text-decoration: underline;">http://203.253.128.164:7579/ParkingSpot/Yatap/Public</div>
+                        <span v-show="!graphDetail" style="align: center; color: red"><br/>Note => Detail will get from LOD button, For that search by keyword in Search tab or click on Select on the top Menu</span>
                     </el-row>
                 </el-col>
             </el-row>
@@ -68,6 +69,62 @@
                 <el-tab-pane label="Graph" style="text-align:center; height:786px">
                     <DrawGraph  v-if="graphNodesLinksDataLoaded" :drawGraphData="graphdataProps"/>
                 </el-tab-pane>
+                <el-tab-pane label="Download(ForSample)">
+                        <b-card-group deck class="b-card-group" >
+                            <b-card class="b-card"
+                                    header="JSON-LD" align="center">
+                                <b-card-text>
+                                    <b-button title="Download" class="b-button" :disabled="false">
+                                        <b-icon class="b-icon" icon="download" aria-hidden="true"></b-icon>
+                                    </b-button>
+                                </b-card-text>
+                            </b-card>
+                            <b-card class="b-card"
+                                    header="RDF/XML" align="center">
+                                <b-card-text>
+                                    <b-button title="Download" class="b-button">
+                                        <b-icon class="b-icon" icon="download" aria-hidden="false"></b-icon>
+                                    </b-button>
+                                </b-card-text>
+                            </b-card>
+                            <b-card class="b-card"
+                                    header="Turtle" align="center">
+                                <b-card-text>
+                                    <b-button title="Download" class="b-button" :disabled="false">
+                                        <b-icon class="b-icon" icon="download" aria-hidden="false"></b-icon>
+                                    </b-button>
+                                </b-card-text>
+                            </b-card>
+                            <b-card class="b-card"
+                                    header="N3" align="center">
+                                <b-card-text>
+                                    <b-button title="Download" class="b-button" :disabled="false">
+                                        <b-icon class="b-icon" icon="download" aria-hidden="false"></b-icon>
+                                    </b-button>
+                                </b-card-text>
+                            </b-card>
+
+                            <b-card class="b-card"
+                                    header="nTriple" align="center">
+                                <b-card-text>
+                                    <b-button title="Download(disabled)" class="b-button" :disabled="true">
+                                        <b-icon class="b-icon" icon="download" aria-hidden="false"></b-icon>
+                                    </b-button>
+                                </b-card-text>
+                            </b-card>
+<!--                            <b-card
+                                    border-variant="secondary"
+                                    header="nTriple"
+                                    header-border-variant="secondary"
+                                    align="center">
+                                <b-card-text>
+                                    <b-button title="Download" class="b-button">
+                                    <b-icon class="b-icon" icon="download" aria-hidden="false"></b-icon>
+                                </b-button>
+                                </b-card-text>
+                            </b-card>-->
+                        </b-card-group>
+                </el-tab-pane>
                 <el-tab-pane label="LOD publish">
                     <div style="text-align:center">
                         <img style="margin:80px 80px 100px 80px" src="./../assets/fileimg.png"/>
@@ -104,8 +161,10 @@ export default {
   },
   methods: {
     getImgUrl(img) {
-        var images = require.context('@/assets/images', false, /\.jpg$/)
-        return images('./' + img + ".jpg")
+        if(img){
+            var images = require.context('@/assets/images', false, /\.jpg$/)
+            return images('./' + img + ".jpg")
+        }
     },
      getGraphInfoByGraphName() {
          const baseURI = "http://localhost:3000";
@@ -278,6 +337,35 @@ marker {
     background-color: #dfe3e8c9;
     bottom: 1px;
 }
+.b-button {
+    background: rgba(212, 194, 194, 0.04);
+    border-color: cornflowerblue;
+    box-shadow: 2px 2px 2px 1px rgba(128, 128, 128, 0.1);
+}
 
+.b-icon {
+    border-color: rgba(115, 108, 129, 0.54);
+    color: cornflowerblue;
+    width: 80px;
+}
 
+.b-card {
+    border-variant:"secondary";
+    header-border-variant :"secondary";
+    align:"center";
+    max-width: 10rem;
+    max-height: 25rem;
+    align:"center"
+}
+
+.b-card-group {
+    align-content: center;
+    display: flex;
+    ms-flex-flow: row wrap;
+    webkit-box-orient: horizontal;
+    webkit-box-direction: normal;
+    flex-flow: row wrap;
+    margin-right: 0px;
+    margin-left:330px;
+}
 </style>
