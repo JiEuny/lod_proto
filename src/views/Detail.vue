@@ -13,17 +13,17 @@
                 </el-col>
                 <el-col :span="20">
                     <br/>
-                    <div class="name">{{graphDetail?graphDetail.graphName:''}}</div>
+                    <div class="name">{{graphDetail?graphDetail.graphName:graphDetailGraphName}}</div>
                     <el-row>
                         <div class="name" style="color:blue; text-decoration: underline;">http://203.253.128.164:7579/ParkingSpot/Yatap/Public</div>
-                        <span v-show="!graphDetail" style="align: center; color: red"><br/>Note => Detail will get from LOD button, For that search by keyword in Search tab or click on Select on the top Menu</span>
+<!--                        <span v-show="!graphDetail" style="align: center; color: red"><br/>Note => Detail will get from LOD button, For that search by keyword in Search tab or click on Select on the top Menu</span>-->
                     </el-row>
                 </el-col>
             </el-row>
         </div>
         <div class="detail" style="align:center; margin-right:100px">
             <el-tabs type="border-card">
-                <el-tab-pane label="Text">
+                <el-tab-pane label="Text" v-if="graphDetail && graphDetail.image != `ontology`">
 
                     <div style="margin:30px 30px 30px 30px">
                         <b-table-simple hover small caption-top responsive bordered >
@@ -69,13 +69,13 @@
                 <el-tab-pane label="Graph" style="text-align:center; height:786px">
                     <DrawGraph  v-if="graphNodesLinksDataLoaded" :drawGraphData="graphdataProps"/>
                 </el-tab-pane>
-                <el-tab-pane label="Download(ForSample)">
+                <el-tab-pane label="Download">
                         <b-card-group deck class="b-card-group" >
                             <b-card class="b-card"
                                     header="JSON-LD" align="center">
                                 <b-card-text>
                                     <b-button title="Download" class="b-button" :disabled="false">
-                                        <b-icon class="b-icon" icon="download" aria-hidden="true"></b-icon>
+                                        <b-icon class="b-icon" icon="download" aria-hidden="true"  v-on:click="saveAndDownloadFile()"></b-icon>
                                     </b-button>
                                 </b-card-text>
                             </b-card>
@@ -125,11 +125,11 @@
                             </b-card>-->
                         </b-card-group>
                 </el-tab-pane>
-                <el-tab-pane label="LOD publish">
+           <!--     <el-tab-pane label="LOD publish">
                     <div style="text-align:center">
                         <img style="margin:80px 80px 100px 80px" src="./../assets/fileimg.png"/>
                     </div>
-                </el-tab-pane>
+                </el-tab-pane>-->
             </el-tabs>
         </div>
 
@@ -146,6 +146,7 @@ export default {
   data() {
       return {
           graphDetail :  this.$route.params.graph_obj,
+          graphDetailGraphName :  this.$route.query.graphName,
           graphNodesLinksDataLoaded: false,
           graphInfoData: '',
           graphInfoDataForTextTab: {address: '', lat:'', long: '', beginningDate:'', endDate:'', contact:'',
@@ -166,13 +167,24 @@ export default {
             return images('./' + img + ".jpg")
         }
     },
+    saveAndDownloadFile: function() {
+        const data = JSON.stringify(this.graphInfoData);
+        const blob = new Blob([data], {type: 'text/plain'})
+        const e = document.createEvent('MouseEvents'),
+            a = document.createElement('a');
+        a.download = "graphInfoFile.json";
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+        e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(e);
+      },
      getGraphInfoByGraphName() {
          const baseURI = "http://localhost:3000";
-        const gName =  (this.graphDetail) ?  this.graphDetail.name : 'no name found'
+        // const gName =  (this.graphDetail) ?  this.graphDetail.name : 'no name found'
+         const gName =  (this.graphDetailGraphName) ?  this.graphDetailGraphName : 'no name found'
          axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10`).then(gInfoRes => {
              console.log(gInfoRes.data);
              this.graphInfoData = gInfoRes.data;
-
              const graphTriplesArr = this.graphInfoData['graph-triples'];
              let regForNumbers = /^(\D*)(\d+)/;
              let regForDateTime = /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/;
@@ -247,11 +259,11 @@ export default {
                  if(strPredicate.search('hasImage') === -1){
                      // create nodes array for graph
                      if(this.graphInfoDataForNodesLinks.nodes.indexOf(strSubject) === -1) {
-                         this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject});
+                         this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject,  "group":  1});
                      }
 
                      if(this.graphInfoDataForNodesLinks.nodes.indexOf(strObject) === -1) {
-                         this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject});
+                         this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject,  "group":  1});
                      }
                       // create linkes array for graph
                      this.graphInfoDataForNodesLinks.linkes.push({source: strSubject, target: strObject, type: strPredicate})

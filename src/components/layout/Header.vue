@@ -16,19 +16,19 @@
             <router-link to="/search" style="font-size:1.5em">Search</router-link>
           </el-menu-item>
 
-          <el-menu-item aria-hidden="true"/>
+<!--          <el-menu-item aria-hidden="true"/>
 
           <el-menu-item index="5">
-            <!-- <i class="el-icon-menu"></i> -->
+            &lt;!&ndash; <i class="el-icon-menu"></i> &ndash;&gt;
             <router-link to="/select" style="font-size:1.5em">Select</router-link>
           </el-menu-item>
 
           <el-menu-item aria-hidden="true"/>
 
           <el-menu-item index="6">
-            <!-- <i class="el-icon-menu"></i> -->
+            &lt;!&ndash; <i class="el-icon-menu"></i> &ndash;&gt;
             <router-link to="/detail" style="font-size:1.5em">Detail</router-link>
-          </el-menu-item>
+          </el-menu-item>-->
 
           <a/>
 

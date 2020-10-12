@@ -27,7 +27,7 @@
           <div class="name">{{gd.graphName}}</div>
           <el-row> <!--gd.parking -> will be graph name -->
 <!--              <router-link :to="`/detail/${gd.parking}`"><el-col :span="2" class="btn">LOD</el-col> </router-link>-->
-              <router-link :to="{ name: 'Detail', params: { graph_obj: gd }}"><el-col :span="2" class="btn">LOD</el-col> </router-link>
+              <router-link :to="{ name: 'Detail', params: { graph_obj: gd }, query: { graphName: gd.name }}"><el-col :span="2" class="btn">LOD</el-col> </router-link>
             <el-col :span="2" class="btn">View Map</el-col>
           </el-row>
         </el-col>

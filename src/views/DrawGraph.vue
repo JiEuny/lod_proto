@@ -22,7 +22,7 @@ export default {
             selections: {},
             forceProperties: {
                 center: {
-                    x: 0.4,
+                    x: 0.3,
                     y: 0.5
                 },
                 charge: {
@@ -35,7 +35,7 @@ export default {
                     enabled: true,
                     strength: .7,
                     iterations: 1,
-                    radius: 35
+                    radius: 45
                 },
                 forceX: {
                     enabled: false,
@@ -53,6 +53,11 @@ export default {
                     iterations: 1
                 }
             },
+            refX: 9, // for marker
+            refY: -0.3,
+            markerWidth: 10,
+            markerHeight: 10,
+            arrowPoints: '0,-5 10,0 0,5',
         }
     },
     props: {drawGraphData : {}},
@@ -88,16 +93,79 @@ export default {
 
             }
 
+/*            const link = d => {
+                // console.log('-link---dy', d.target);
+
+                return "M" + d.source.x + "," + d.source.y + " L" + d.target.x + "," + d.target.y;
+            }*/
+
+
             const link = d => {
                 // console.log('-link---dy', d.target);
-                return "M" + d.source.x + "," + d.source.y + " L" + d.target.x + "," + d.target.y;
+
+                var inter = this.pointOnRect(d.source.x, d.source.y,
+                    d.target.x - 32, d.target.y - 32,
+                    d.target.x + 32, d.target.y + 32);
+
+                return "M" + d.source.x + "," + d.source.y + "L" + inter.x + "," + inter.y;
+
             }
+
+
 
             const graph = this.selections.graph
             graph.selectAll("path").attr("d", link)
             graph.selectAll("circle").attr("transform", transform)
             graph.selectAll("text").attr("transform", transform)
             // graph.selectAll("rect").attr("transform", transform)
+        },
+        pointOnRect(x, y, minX, minY, maxX, maxY, check) {
+            //assert minX <= maxX;
+            //assert minY <= maxY;
+            if (check && (minX <= x && x <= maxX) && (minY <= y && y <= maxY))
+                throw "Point " + [x, y] + "cannot be inside " + "the circle: " + [minX, minY] + " - " + [maxX, maxY] + ".";
+            var midX = (minX + maxX) / 2;
+            var midY = (minY + maxY) / 2;
+            // if (midX - x == 0) -> m == ±Inf -> minYx/maxYx == x (because value / ±Inf = ±0)
+            var m = (midY - y) / (midX - x);
+
+            if (x <= midX) { // check "left" side
+                var minXy = m * (minX - x) + y;
+                if (minY <= minXy && minXy <= maxY)
+                    return {
+                        x: minX,
+                        y: minXy
+                    };
+            }
+
+            if (x >= midX) { // check "right" side
+                var maxXy = m * (maxX - x) + y;
+                if (minY <= maxXy && maxXy <= maxY)
+                    return {
+                        x: maxX,
+                        y: maxXy
+                    };
+            }
+
+            if (y <= midY) { // check "top" side
+                var minYx = (minY - y) / m + x;
+                if (minX <= minYx && minYx <= maxX)
+                    return {
+                        x: minYx,
+                        y: minY
+                    };
+            }
+
+            if (y >= midY) { // check "bottom" side
+                var maxYx = (maxY - y) / m + x;
+                if (minX <= maxYx && maxYx <= maxX)
+                    return {
+                        x: maxYx,
+                        y: maxY
+                    };
+            }
+
+            throw "Cannot find intersection for " + [x, y] + " inside circle " + [minX, minY] + " - " + [maxX, maxY] + ".";
         },
         updateForces() {
             this.simulation.force("center")
@@ -146,8 +214,19 @@ export default {
             this.simulation.force("link").links(this.links)
             //, d3.forceLink().id(function(d) { return d.id; }))
 
-            const simulation = this.simulation
-            const graph = this.selections.graph
+            const simulation = this.simulation;
+            const graph = this.selections.graph;
+
+            graph.selectAll("path")
+                .data(simulation.force("link").links())
+                .enter().append("path")
+                .attr("class", d=> "link " + d.type).attr("id",function(d,i) { return "linkId_" + i; })
+                .attr("stroke", "#06592a")
+                .attr("marker-end", "url(#end)")
+                .attr("stroke-width",1)
+                // .attr("stroke-width", function(d) { return (d.target.value * 50); })
+                // .attr('marker-start', 'url(#arrow)')
+                .exit().remove();
 
             graph.selectAll("circle")
                 .data(simulation.nodes())
@@ -173,12 +252,20 @@ export default {
                 .attr("text-anchor", "middle")
                 .text(d => d.name);
 
-            graph.selectAll("path")
-                .data(simulation.force("link").links())
-                .enter().append("path")
-                .attr("class", d=> "link " + d.type).attr("id",function(d,i) { return "linkId_" + i; })
+            // Define the arrowhead marker variables
+            graph.append("svg:defs").selectAll("marker")
+                .data(["end"])
+                .enter().append("svg:marker")
+                .attr("id", String)
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", this.refX)
+                .attr("refY", this.refY)
+                .attr("markerWidth", this.markerWidth)
+                .attr("markerHeight", this.markerHeight)
+                .attr("orient", "auto")
                 .attr("stroke", "#06592a")
-                .exit().remove();
+                .append("svg:polyline")
+                .attr("points", this.arrowPoints);
 
             graph.selectAll("linklabel")
                 .data(simulation.force("link").links())
@@ -188,7 +275,7 @@ export default {
                 .attr("dy",0)
                 .style("fill","#7fb906")
                 .append("textPath")
-                .attr("xlink:href",function(d,i) { return "#linkId_" + i;})
+                .attr("href",function(d,i) { return "#linkId_" + i;})
                 .text(function(d) { return d.type});
 
             simulation.alpha(1).restart();
