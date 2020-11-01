@@ -74,8 +74,8 @@
                             <b-card class="b-card"
                                     header="JSON-LD" align="center">
                                 <b-card-text>
-                                    <b-button title="Download" class="b-button" :disabled="false">
-                                        <b-icon class="b-icon" icon="download" aria-hidden="true"  v-on:click="saveAndDownloadFile()"></b-icon>
+                                    <b-button title="Download(disabled)" class="b-button" :disabled="true">
+                                        <b-icon class="b-icon" icon="download" aria-hidden="true"></b-icon>
                                     </b-button>
                                 </b-card-text>
                             </b-card>
@@ -83,14 +83,14 @@
                                     header="RDF/XML" align="center">
                                 <b-card-text>
                                     <b-button title="Download" class="b-button">
-                                        <b-icon class="b-icon" icon="download" aria-hidden="false"></b-icon>
+                                        <b-icon class="b-icon" icon="download" aria-hidden="false" v-on:click="getGraphInfoByGraphName(true)"></b-icon>
                                     </b-button>
                                 </b-card-text>
                             </b-card>
                             <b-card class="b-card"
                                     header="Turtle" align="center">
                                 <b-card-text>
-                                    <b-button title="Download" class="b-button" :disabled="false">
+                                    <b-button title="Download(disabled)" class="b-button" :disabled="true">
                                         <b-icon class="b-icon" icon="download" aria-hidden="false"></b-icon>
                                     </b-button>
                                 </b-card-text>
@@ -98,7 +98,7 @@
                             <b-card class="b-card"
                                     header="N3" align="center">
                                 <b-card-text>
-                                    <b-button title="Download" class="b-button" :disabled="false">
+                                    <b-button title="Download(disabled)" class="b-button" :disabled="true">
                                         <b-icon class="b-icon" icon="download" aria-hidden="false"></b-icon>
                                     </b-button>
                                 </b-card-text>
@@ -154,6 +154,7 @@ export default {
 
           graphInfoDataForNodesLinks:{nodes: [], linkes:[]},
           graphdataProps : '',
+          asFile : false,
 
           };
   },
@@ -167,84 +168,105 @@ export default {
             return images('./' + img + ".jpg")
         }
     },
-    saveAndDownloadFile: function() {
-        const data = JSON.stringify(this.graphInfoData);
-        const blob = new Blob([data], {type: 'text/plain'})
-        const e = document.createEvent('MouseEvents'),
-            a = document.createElement('a');
-        a.download = "graphInfoFile.json";
-        a.href = window.URL.createObjectURL(blob);
-        a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
-        e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-        a.dispatchEvent(e);
+    downloadGraphInfoFile: function(fileData) {
+        const xmltext = fileData;
+        let pom = document.createElement('a');
+
+        const filename = "graphInfoFile.xml";
+         pom = document.createElement('a');
+        const bb = new Blob([xmltext], {type: 'text/plain'});
+
+        pom.setAttribute('href', window.URL.createObjectURL(bb));
+        pom.setAttribute('download', filename);
+        pom.dataset.downloadurl = ['text/plain', pom.download, pom.href].join(':');
+        pom.draggable = true;
+        pom.classList.add('dragout');
+        pom.click();
       },
-     getGraphInfoByGraphName() {
+
+     getGraphInfoByGraphName(file) {
+
          const baseURI = "http://localhost:3000";
         // const gName =  (this.graphDetail) ?  this.graphDetail.name : 'no name found'
-         const gName =  (this.graphDetailGraphName) ?  this.graphDetailGraphName : 'no name found'
-         axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10`).then(gInfoRes => {
+         const gName =  (this.graphDetailGraphName) ?  this.graphDetailGraphName : 'no name found';
+         let isFile = this.asFile;
+
+         if(file)
+             isFile = file
+
+         //"http://localhost:3000/graphs/parking:yatap_01?prefixFormat=normal&limit=10&asFile=false"
+         axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10&asFile=`+ isFile).then(gInfoRes => {
              console.log(gInfoRes.data);
              this.graphInfoData = gInfoRes.data;
+
+             // if file is true then api will return xml text for dwonload
+             if (file) {
+                 var xmltext =  this.graphInfoData;
+                 this.downloadGraphInfoFile(xmltext)
+
+             }
+             else {
+
              const graphTriplesArr = this.graphInfoData['graph-triples'];
              let regForNumbers = /^(\D*)(\d+)/;
              let regForDateTime = /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/;
-             for (let i = 0; i <  graphTriplesArr.length; i++) {
+             for (let i = 0; i < graphTriplesArr.length; i++) {
 
                  const strSubject = graphTriplesArr[i].subject;
                  const strPredicate = graphTriplesArr[i].predicate;
                  let graphNameVal = false;
                  const gNameForFilter = gName.substring(gName.indexOf(":") + 1, gName.length);
 
-            if (strSubject.search(gNameForFilter) !== -1)
-                  graphNameVal = true;
+                 if (strSubject.search(gNameForFilter) !== -1)
+                     graphNameVal = true;
 
-            // get create properties set (Text Tab data) for given graphName
-            if (graphNameVal) {
-                 if (strPredicate.search('hasPostalAddress') !== -1)
-                     this.graphInfoDataForTextTab.address = graphTriplesArr[i].object;
-                 else if (strPredicate.search('hasLatitute') !== -1)
-                     this.graphInfoDataForTextTab.lat = graphTriplesArr[i].object.match(/^(\D*)(\d+).(\D*)(\d+)/)[0]; // get lat, long from string by regex
-                 else if (strPredicate.search('hasLongitude') !== -1)
-                     this.graphInfoDataForTextTab.long = graphTriplesArr[i].object.match(/^(\D*)(\d+).(\D*)(\d+)/)[0];
-                 else if (strPredicate.search('hasBeginning') !== -1)
-                     this.graphInfoDataForTextTab.beginningDate = graphTriplesArr[i].object;
-                 else if (strPredicate.search('hasEnd') !== -1)
-                     this.graphInfoDataForTextTab.endDate = graphTriplesArr[i].object;
-                 // else if (graphNameVal && strPredicate.search('dayOfWeek') !== -1)
-                 else if (strPredicate.search('hasTelephoneNumber') !== -1)
-                     this.graphInfoDataForTextTab.contact = graphTriplesArr[i].object;
-                 else if (strPredicate.search('hasEmail') !== -1)
-                     this.graphInfoDataForTextTab.email = graphTriplesArr[i].object;
-                 // else if (graphNameVal && strPredicate.search('hasDateModified') !== -1)
-                 else if (strPredicate.search('inXSDDateTime') !== -1)
-                     this.graphInfoDataForTextTab.modifiedDate = graphTriplesArr[i].object.match(regForDateTime)[0]; // get date from string by regex
-                 else if (strPredicate.search('hasTotalSpots') !== -1)
-                     this.graphInfoDataForTextTab.totalParkingSpace = graphTriplesArr[i].object.match(regForNumbers)[0];// get number from string by regex
-                 else if (strPredicate.search('hasAvailableNumberOfSpots') !== -1)
-                     this.graphInfoDataForTextTab.availableNumberOfSpots = graphTriplesArr[i].object.match(regForNumbers)[0];
+                 // get create properties set (Text Tab data) for given graphName
+                 if (graphNameVal) {
+                     if (strPredicate.search('hasPostalAddress') !== -1)
+                         this.graphInfoDataForTextTab.address = graphTriplesArr[i].object;
+                     else if (strPredicate.search('hasLatitute') !== -1)
+                         this.graphInfoDataForTextTab.lat = graphTriplesArr[i].object.match(/^(\D*)(\d+).(\D*)(\d+)/)[0]; // get lat, long from string by regex
+                     else if (strPredicate.search('hasLongitude') !== -1)
+                         this.graphInfoDataForTextTab.long = graphTriplesArr[i].object.match(/^(\D*)(\d+).(\D*)(\d+)/)[0];
+                     else if (strPredicate.search('hasBeginning') !== -1)
+                         this.graphInfoDataForTextTab.beginningDate = graphTriplesArr[i].object;
+                     else if (strPredicate.search('hasEnd') !== -1)
+                         this.graphInfoDataForTextTab.endDate = graphTriplesArr[i].object;
+                     // else if (graphNameVal && strPredicate.search('dayOfWeek') !== -1)
+                     else if (strPredicate.search('hasTelephoneNumber') !== -1)
+                         this.graphInfoDataForTextTab.contact = graphTriplesArr[i].object;
+                     else if (strPredicate.search('hasEmail') !== -1)
+                         this.graphInfoDataForTextTab.email = graphTriplesArr[i].object;
+                     // else if (graphNameVal && strPredicate.search('hasDateModified') !== -1)
+                     else if (strPredicate.search('inXSDDateTime') !== -1)
+                         this.graphInfoDataForTextTab.modifiedDate = graphTriplesArr[i].object.match(regForDateTime)[0]; // get date from string by regex
+                     else if (strPredicate.search('hasTotalSpots') !== -1)
+                         this.graphInfoDataForTextTab.totalParkingSpace = graphTriplesArr[i].object.match(regForNumbers)[0];// get number from string by regex
+                     else if (strPredicate.search('hasAvailableNumberOfSpots') !== -1)
+                         this.graphInfoDataForTextTab.availableNumberOfSpots = graphTriplesArr[i].object.match(regForNumbers)[0];
 
-             }else
-                console.log('no data found for graph Name');
+                 } else
+                     console.log('no data found for graph Name');
              }
 
              // create array (for Graph Tab) of node and links to draw graph
 
-             for (let j = 0; j <  graphTriplesArr.length; j++) {
+             for (let j = 0; j < graphTriplesArr.length; j++) {
 
 
                  // Original string of sub, obj and pred
                  const strSubjectOrg = graphTriplesArr[j].subject;
                  const strPredicateOrg = graphTriplesArr[j].predicate;
-                 const strObjectOrg =  graphTriplesArr[j].object;
+                 const strObjectOrg = graphTriplesArr[j].object;
 
-                   // remove word from sub string before ':',  like parking:text -> text
+                 // remove word from sub string before ':',  like parking:text -> text
                  const strSubject = strSubjectOrg.substring(strSubjectOrg.indexOf(":") + 1, strSubjectOrg.length);
                  const strPredicate = strPredicateOrg.substring(strPredicateOrg.indexOf(":") + 1, strPredicateOrg.length);
 
-                   // remove word from obj string after '^^',  like 110^^textbalaba -> textbalaba
+                 // remove word from obj string after '^^',  like 110^^textbalaba -> textbalaba
                  const strObject = (strObjectOrg.indexOf('^') !== -1 || strObjectOrg.search(':') !== 0) ?
-                    ((strObjectOrg.indexOf('^') !== -1 ) ? strObjectOrg.substring(0,strObjectOrg.indexOf("^^"))
-                     : strObjectOrg.substring(strObjectOrg.indexOf(":") + 1, strObjectOrg.length))
+                     ((strObjectOrg.indexOf('^') !== -1) ? strObjectOrg.substring(0, strObjectOrg.indexOf("^^"))
+                         : strObjectOrg.substring(strObjectOrg.indexOf(":") + 1, strObjectOrg.length))
                      : strObjectOrg
 
                  let graphNameVal = false;
@@ -256,26 +278,31 @@ export default {
 
                  if (graphNameVal) {
                      // discluded hasImage pred
-                 if(strPredicate.search('hasImage') === -1){
-                     // create nodes array for graph
-                     if(this.graphInfoDataForNodesLinks.nodes.indexOf(strSubject) === -1) {
-                         this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject,  "group":  1});
-                     }
+                     if (strPredicate.search('hasImage') === -1) {
+                         // create nodes array for graph
+                         if (this.graphInfoDataForNodesLinks.nodes.indexOf(strSubject) === -1) {
+                             this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject, "group": 1});
+                         }
 
-                     if(this.graphInfoDataForNodesLinks.nodes.indexOf(strObject) === -1) {
-                         this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject,  "group":  1});
+                         if (this.graphInfoDataForNodesLinks.nodes.indexOf(strObject) === -1) {
+                             this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject, "group": 1});
+                         }
+                         // create linkes array for graph
+                         this.graphInfoDataForNodesLinks.linkes.push({
+                             source: strSubject,
+                             target: strObject,
+                             type: strPredicate
+                         })
                      }
-                      // create linkes array for graph
-                     this.graphInfoDataForNodesLinks.linkes.push({source: strSubject, target: strObject, type: strPredicate})
                  }
-                }
 
              }
-             console.log('-----graphInfoDataForNodesLinks-----> ',this.graphInfoDataForNodesLinks);
-            // pass  graph array to props
-            this.graphdataProps = this.graphInfoDataForNodesLinks;
-            // load DrawGraph component  when prapare graph array
-            this.graphNodesLinksDataLoaded = true;
+             console.log('-----graphInfoDataForNodesLinks-----> ', this.graphInfoDataForNodesLinks);
+             // pass  graph array to props
+             this.graphdataProps = this.graphInfoDataForNodesLinks;
+             // load DrawGraph component  when prapare graph array
+             this.graphNodesLinksDataLoaded = true;
+         }
              });
       }
   },
