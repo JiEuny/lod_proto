@@ -156,6 +156,32 @@ export default {
           graphdataProps : '',
           asFile : false,
 
+          graphdataPropsTest: { // object for testing
+              "nodes":  [
+                  {"id": "Namedindividual",  "name": "Namedindividual", shape : 'circle'},
+                  {"id": "ProfilePicture_1_yatap_01",  "name": "ProfilePicture_1_yatap_01"},
+                  {"id": "TemporalEntity_1_yatap_01",   "name": "TemporalEntity_1_yatap_01", shape : 'square'},
+                  {"id":  "Currency_1_yatap_01",   "name": "Currency_1_yatap_01", type: 2},
+                  {"id": "AvailableParkingSpots_1_yatap_01",   "name": "AvailableParkingSpots_1_yatap_01", shape : 'square'},
+                  {"id": "PCEService_1_yatap_01",   "name": "PCEService_1_yatap_01"},
+                  {"id": "ParkingCongestionEstimation_1_yatap_01",   "name": "ParkingCongestionEstimation_1_yatap_01"},
+                  {"id": "ParkingLotProfile_1_yatap_01",   "name": "ParkingLotProfile_1_yatap_01"},
+                  {"id": "ParkingLot_1_yatap_01",   "name": "ParkingLot_1_yatap_01", shape : 'square'},
+
+              ],
+              "linkes":  [
+                  { "source":  "ProfilePicture_1_yatap_01",  "target":  "Namedindividual",  "value":  4,  type: "KNOWS"},
+                  { "source":  "TemporalEntity_1_yatap_01",  "target":  "Namedindividual",  "value":  4,  type: "KNOWS"},
+                  { "source":  "Currency_1_yatap_01",  "target":  "Namedindividual",  "value":  4,  type: "KNOWS"},
+                  { "source":  "AvailableParkingSpots_1_yatap_01",  "target":  "Namedindividual",  "value":  4,  type: "KNOWS"},
+                  { "source":  "PCEService_1_yatap_01",  "target":  "Namedindividual",  "value":  4,  type: "KNOWS"},
+                  { "source":  "ParkingCongestionEstimation_1_yatap_01",  "target":  "Namedindividual",  "value":  4,  type: "KNOWS"},
+                  { "source":  "ParkingLotProfile_1_yatap_01",  "target":  "Namedindividual",  "value":  4,  type: "KNOWS"},
+                  { "source":  "ParkingLot_1_yatap_01",  "target":  "Namedindividual",  "value":  4,  type: "KNOWS"},
+                  { "source":  "ParkingLot_1_yatap_01",  "target":  "TemporalEntity_1_yatap_01",  "value":  4,  type: "KNOWS"},
+              ]
+          },
+
           };
   },
   components: {
@@ -195,11 +221,12 @@ export default {
              isFile = file
 
          //"http://localhost:3000/graphs/parking:yatap_01?prefixFormat=normal&limit=10&asFile=false"
-         axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10&asFile=`+ isFile).then(gInfoRes => {
+         // axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10&asFile=`+ isFile).then(gInfoRes => {
+         axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10&asFile=`+ isFile + '&isOntology=' + this.graphDetail.image).then(gInfoRes => {
              console.log(gInfoRes.data);
              this.graphInfoData = gInfoRes.data;
 
-             // if file is true then api will return xml text for dwonload
+             // if file is true then api will return xml text for download
              if (file) {
                  var xmltext =  this.graphInfoData;
                  this.downloadGraphInfoFile(xmltext)
@@ -210,6 +237,9 @@ export default {
              const graphTriplesArr = this.graphInfoData['graph-triples'];
              let regForNumbers = /^(\D*)(\d+)/;
              let regForDateTime = /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?/;
+             let regForDataProperty = /[A-Za-z]+:/;
+             // let regForLatLong = /^(\D*)(\d+).(\D*)(\d+)/;
+
              for (let i = 0; i < graphTriplesArr.length; i++) {
 
                  const strSubject = graphTriplesArr[i].subject;
@@ -221,7 +251,7 @@ export default {
                      graphNameVal = true;
 
                  // get create properties set (Text Tab data) for given graphName
-                 if (graphNameVal) {
+                 if (graphNameVal && this.graphDetail && this.graphDetail.image !== 'ontology') {
                      if (strPredicate.search('hasPostalAddress') !== -1)
                          this.graphInfoDataForTextTab.address = graphTriplesArr[i].object;
                      else if (strPredicate.search('hasLatitute') !== -1)
@@ -276,16 +306,21 @@ export default {
                  if (strSubject.search(gNameForFilter) !== -1)
                      graphNameVal = true;
 
-                 if (graphNameVal) {
-                     // discluded hasImage pred
-                     if (strPredicate.search('hasImage') === -1) {
+                 const shape = strObjectOrg.match(regForDataProperty)
+                 && (!strObject.match(regForDateTime))
+                 && !Number.isInteger(parseInt(strObject)) ? "circle" : "square";
+                 console.log('shape----'+ shape + ',   strObjectOrg----'+strObjectOrg + ',    strObject-----'+strObject)
+                 if (graphNameVal || this.graphDetail && this.graphDetail.image == 'ontology') {
+
+                     // discluded hasImage pred and type pred
+                     if (strPredicate.search('hasImage') === -1 && strPredicate.search('type') === -1) {
                          // create nodes array for graph
                          if (this.graphInfoDataForNodesLinks.nodes.indexOf(strSubject) === -1) {
-                             this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject, "group": 1});
+                             this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject, "group": 1, shape: shape});
                          }
 
                          if (this.graphInfoDataForNodesLinks.nodes.indexOf(strObject) === -1) {
-                             this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject, "group": 1});
+                             this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject, "group": 1, shape: shape});
                          }
                          // create linkes array for graph
                          this.graphInfoDataForNodesLinks.linkes.push({
@@ -300,10 +335,11 @@ export default {
              console.log('-----graphInfoDataForNodesLinks-----> ', this.graphInfoDataForNodesLinks);
              // pass  graph array to props
              this.graphdataProps = this.graphInfoDataForNodesLinks;
+             // this.graphdataProps = this.graphdataPropsTest;
              // load DrawGraph component  when prapare graph array
              this.graphNodesLinksDataLoaded = true;
-         }
-             });
+            }
+         });
       }
   },
    mounted() {

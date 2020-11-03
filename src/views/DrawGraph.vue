@@ -117,7 +117,7 @@ export default {
             graph.selectAll("path").attr("d", link)
             graph.selectAll("circle").attr("transform", transform)
             graph.selectAll("text").attr("transform", transform)
-            // graph.selectAll("rect").attr("transform", transform)
+            graph.selectAll("rect").attr("transform", transform)
         },
         pointOnRect(x, y, minX, minY, maxX, maxY, check) {
             //assert minX <= maxX;
@@ -228,19 +228,42 @@ export default {
                 // .attr('marker-start', 'url(#arrow)')
                 .exit().remove();
 
-            graph.selectAll("circle")
+            graph.selectAll("g.node")
                 .data(simulation.nodes())
-                .enter().append("circle")
-                .attr("r", 35)
-                .attr("class", d => d.class)
-                .attr("fill", "#c7c2d4")
-                .attr("stroke", "#660000")
+                .enter().append("svg:g")
+                .attr("class", function (d) {
+                    if (d.shape == "square") {
+                        return "square node";
+                    } else {
+                        return "circle node";
+                    }
+                })
                 .call(d3.drag()
                     .on("start", this.dragstarted)
                     .on("drag", this.dragged)
-                    .on("end", this.dragended))
-                .exit().remove()
+                    .on("end", this.dragended));
 
+            // add circle square nodes
+            graph.selectAll(".square")
+                .append("rect")
+                .attr("x", -31)
+                .attr("y", -25)
+                .attr("width", 60)
+                .attr("height", 60)
+                // .attr("fill", "#9eb9c5")
+                .attr("fill", "#ccd7e3")
+                .attr("stroke", "#660000");
+
+            // add circle shape nodes
+            graph.selectAll(".circle").append("circle")
+                // .attr("class", function (d) {
+                //     return "node type" + d.type // for color
+                // })
+                .attr("r", 35)
+                .attr("fill", "#c7c2d4")
+                .attr("stroke", "#660000");
+
+            // node text
             graph.selectAll("text")
                 .data(simulation.nodes())
                 .enter().append("text")
@@ -277,6 +300,7 @@ export default {
                 .append("textPath")
                 .attr("href",function(d,i) { return "#linkId_" + i;})
                 .text(function(d) { return d.type});
+
 
             simulation.alpha(1).restart();
         },
