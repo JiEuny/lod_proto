@@ -190,7 +190,7 @@ export default {
   methods: {
     getImgUrl(img) {
         if(img){
-            var images = require.context('@/assets/images', false, /\.jpg$/)
+            const images = require.context('@/assets/images', false, /\.jpg$/)
             return images('./' + img + ".jpg")
         }
     },
@@ -221,14 +221,13 @@ export default {
              isFile = file
 
          //"http://localhost:3000/graphs/parking:yatap_01?prefixFormat=normal&limit=10&asFile=false"
-         // axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10&asFile=`+ isFile).then(gInfoRes => {
-         axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10&asFile=`+ isFile + '&isOntology=' + this.graphDetail.image).then(gInfoRes => {
+         axios.get(baseURI+`/graphs/${gName}?prefixFormat=normal&limit=10&asFile=`+ isFile).then(gInfoRes => {
              console.log(gInfoRes.data);
              this.graphInfoData = gInfoRes.data;
 
              // if file is true then api will return xml text for download
              if (file) {
-                 var xmltext =  this.graphInfoData;
+                 const xmltext =  this.graphInfoData;
                  this.downloadGraphInfoFile(xmltext)
 
              }
@@ -309,18 +308,19 @@ export default {
                  const shape = strObjectOrg.match(regForDataProperty)
                  && (!strObject.match(regForDateTime))
                  && !Number.isInteger(parseInt(strObject)) ? "circle" : "square";
-                 console.log('shape----'+ shape + ',   strObjectOrg----'+strObjectOrg + ',    strObject-----'+strObject)
+                 console.log('shape----'+ shape + ',   ----'+strObjectOrg + ',    strObject-----'+ strObject);
+
                  if (graphNameVal || this.graphDetail && this.graphDetail.image == 'ontology') {
 
                      // discluded hasImage pred and type pred
                      if (strPredicate.search('hasImage') === -1 && strPredicate.search('type') === -1) {
-                         // create nodes array for graph
+                         // create nodes array for graph and check for duplicate
                          if (this.graphInfoDataForNodesLinks.nodes.indexOf(strSubject) === -1) {
-                             this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject, "group": 1, shape: shape});
+                             this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject});
                          }
-
+                         //check for duplicate and push
                          if (this.graphInfoDataForNodesLinks.nodes.indexOf(strObject) === -1) {
-                             this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject, "group": 1, shape: shape});
+                             this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject, shape: shape});
                          }
                          // create linkes array for graph
                          this.graphInfoDataForNodesLinks.linkes.push({
