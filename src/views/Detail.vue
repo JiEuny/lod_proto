@@ -158,15 +158,15 @@ export default {
 
           graphdataPropsTest: { // object for testing
               "nodes":  [
-                  {"id": "Namedindividual",  "name": "Namedindividual", shape : 'circle'},
-                  {"id": "ProfilePicture_1_yatap_01",  "name": "ProfilePicture_1_yatap_01"},
-                  {"id": "TemporalEntity_1_yatap_01",   "name": "TemporalEntity_1_yatap_01", shape : 'square'},
+                  {"id": "Namedindividual",  "name": "Namedindividual", shape : 'circle', type:1},
+                  {"id": "ProfilePicture_1_yatap_01",  "name": "ProfilePicture_1_yatap_01" , type:1},
+                  {"id": "TemporalEntity_1_yatap_01",   "name": "TemporalEntity_1_yatap_01", shape : 'square', type:1},
                   {"id":  "Currency_1_yatap_01",   "name": "Currency_1_yatap_01", type: 2},
-                  {"id": "AvailableParkingSpots_1_yatap_01",   "name": "AvailableParkingSpots_1_yatap_01", shape : 'square'},
-                  {"id": "PCEService_1_yatap_01",   "name": "PCEService_1_yatap_01"},
-                  {"id": "ParkingCongestionEstimation_1_yatap_01",   "name": "ParkingCongestionEstimation_1_yatap_01"},
-                  {"id": "ParkingLotProfile_1_yatap_01",   "name": "ParkingLotProfile_1_yatap_01"},
-                  {"id": "ParkingLot_1_yatap_01",   "name": "ParkingLot_1_yatap_01", shape : 'square'},
+                  {"id": "AvailableParkingSpots_1_yatap_01",   "name": "AvailableParkingSpots_1_yatap_01", shape : 'square', type:2},
+                  {"id": "PCEService_1_yatap_01",   "name": "PCEService_1_yatap_01", type:5},
+                  {"id": "ParkingCongestionEstimation_1_yatap_01",   "name": "ParkingCongestionEstimation_1_yatap_01", type:2},
+                  {"id": "ParkingLotProfile_1_yatap_01",   "name": "ParkingLotProfile_1_yatap_01", type:4},
+                  {"id": "ParkingLot_1_yatap_01",   "name": "ParkingLot_1_yatap_01", shape : 'square', type:3},
 
               ],
               "linkes":  [
@@ -310,17 +310,30 @@ export default {
                  && !Number.isInteger(parseInt(strObject)) ? "circle" : "square";
                  console.log('shape----'+ shape + ',   ----'+strObjectOrg + ',    strObject-----'+ strObject);
 
+                 // add type for color condition (all different domain)
+                 let type = 0;
+                 if(strObjectOrg.search('parking:ParkingSpot_1_yatap_01_yatap_540') !== -1)
+                    type = 1
+                 else if(strObjectOrg.search('weather:WeatherEstimation_1_WeatherForecast_6279') !== -1)
+                     type = 2
+                 else if(strObjectOrg.search('air-quality:AirQualityObservation_1_AirQualityObserved_6378') !== -1)
+                     type = 3
+                 else if(strObjectOrg.search('air-quality:AirQualityEstimation_1_AirQualityForecast_6831') !== -1)
+                     type = 4
+                 else if(strObjectOrg.search('weather:WeatherObservation_1_WeatherObserved_6831') !== -1)
+                     type = 5;
+
                  if (graphNameVal || this.graphDetail && this.graphDetail.image == 'ontology') {
 
                      // discluded hasImage pred and type pred
                      if (strPredicate.search('hasImage') === -1 && strPredicate.search('type') === -1) {
                          // create nodes array for graph and check for duplicate
                          if (this.graphInfoDataForNodesLinks.nodes.indexOf(strSubject) === -1) {
-                             this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject});
+                             this.graphInfoDataForNodesLinks.nodes.push({id: strSubject, name: strSubject, type:type});
                          }
                          //check for duplicate and push
                          if (this.graphInfoDataForNodesLinks.nodes.indexOf(strObject) === -1) {
-                             this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject, shape: shape});
+                             this.graphInfoDataForNodesLinks.nodes.push({id: strObject, name: strObject, shape: shape, type:type});
                          }
                          // create linkes array for graph
                          this.graphInfoDataForNodesLinks.linkes.push({

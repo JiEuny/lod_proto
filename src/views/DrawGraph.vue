@@ -250,17 +250,18 @@ export default {
                 .attr("y", -25)
                 .attr("width", 60)
                 .attr("height", 60)
-                // .attr("fill", "#9eb9c5")
-                .attr("fill", "#ccd7e3")
-                .attr("stroke", "#660000");
+                // .attr("fill", "#ccd7e3")
+                .attr("stroke", "#660000")
+                .attr("class", function (d) {
+                        return "node typeSqr" + d.type});// for color
 
             // add circle shape nodes
             graph.selectAll(".circle").append("circle")
-                // .attr("class", function (d) {
-                //     return "node type" + d.type // for color
-                // })
+                .attr("class", function (d) {
+                    return "node typeCir" + d.type // for color
+                })
                 .attr("r", 35)
-                .attr("fill", "#c7c2d4")
+                // .attr("fill", "#c7c2d4")
                 .attr("stroke", "#660000");
 
             // node text
@@ -333,8 +334,47 @@ export default {
 }
 </script>
 
-<style scoped>
+<!--<style scoped>-->
+<style>
 
+  .node.typeCir0 {
+      fill: #c7c2d4;
+  }
+  .node.typeCir1 {
+      fill: #68d431;
+  }
+  .node.typeCir2 {
+      fill: #d4bd0d;
+  }
+  .node.typeCir3 {
+      fill: #ff9715;
+  }
+  .node.typeCir4 {
+      fill: #ffe3a3;
+  }
+  .node.typeCir5 {
+      fill: #80dce0;
+  }
+  .node.typeSqr0 {
+      fill: #ccd7e3;
+  }
+  .node.typeSqr1 {
+      fill: #68d431;
+  }
+  .node.typeSqr2 {
+      fill: #91d4ba;
+  }
+  .node.typeSqr3 {
+      fill: #f7ffcc;
+  }
+  .node.typeSqr4 {
+      fill: #ffe3a3;
+  }
+  .node.typeSqr5 {
+      fill: #8d96e0;
+  }
+
+/*
   path.link {
     fill: none;
     stroke: #666;
@@ -346,9 +386,8 @@ export default {
   }
   path.link.needs {
     stroke: #7f3f00;
-  }
 
-  circle {
+circle {
     fill: #ffff99;
     stroke: #191900;
     stroke-width: 1.5px;
@@ -370,6 +409,6 @@ export default {
     font: 10px sans-serif;
     pointer-events: none;
     text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
-  }
+  }*/
 
 </style>
